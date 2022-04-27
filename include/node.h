@@ -3,7 +3,14 @@
 
 #include <g3x.h>
 #include "shape.h"
-#include "material.h"
+
+typedef struct _material_
+{
+    float ambi;
+    float diff;
+    float spec;
+    float shine;
+} Material;
 
 typedef struct _node_
 {

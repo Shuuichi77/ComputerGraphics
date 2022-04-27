@@ -1,10 +1,4 @@
-#include <g3x.h>
-#include "../include/shape.h"
-#include "../include/sphere.h"
-#include "../include/utils.h"
-
-static double TORUS_R = 1.0;            // Rayon du trou
-static double TORUS_S = 0.5;            // Rayon du tore (épaisseur)
+#include "../include/torus.h"
 
 void draw_points_torus(Shape *shape, G3Xvector scale_factor)
 {
@@ -68,10 +62,3 @@ Shape init_torus()
 
     return torus;
 }
-
-void draw_torus(G3Xvector scale_factor)
-{
-    Shape torus = init_torus();
-    torus.draw_faces(&torus, scale_factor);
-}
-

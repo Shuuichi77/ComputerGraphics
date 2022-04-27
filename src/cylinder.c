@@ -1,11 +1,4 @@
-#include <g3x.h>
-#include "../include/shape.h"
 #include "../include/cylinder.h"
-#include "../include/utils.h"
-
-
-static double CYLINDER_H = 2;              // Hauteur du cylindre
-static double CYLINDER_R = 1;             // Rayon du cylindre
 
 void draw_points_cylinder(Shape *shape, G3Xvector scale_factor)
 {
@@ -132,11 +125,5 @@ Shape init_cylinder()
     }
 
     return cylinder;
-}
-
-void draw_cylinder(G3Xvector scale_factor)
-{
-    Shape cylinder = init_cylinder();
-    cylinder.draw_faces(&cylinder, scale_factor);
 }
 

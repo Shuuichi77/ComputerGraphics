@@ -1,9 +1,4 @@
-#include <g3x.h>
-#include "../include/shape.h"
 #include "../include/sphere.h"
-#include "../include/utils.h"
-
-static double SPHERE_R = 1.0;            // Rayon de la sphère.
 
 void draw_points_sphere(Shape *shape, G3Xvector scale_factor)
 {
@@ -68,11 +63,5 @@ Shape init_sphere()
     }
 
     return sphere;
-}
-
-void draw_sphere(G3Xvector scale_factor)
-{
-    Shape sphere = init_sphere();
-    sphere.draw_faces(&sphere, scale_factor);
 }
 

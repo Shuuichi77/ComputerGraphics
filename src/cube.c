@@ -1,9 +1,4 @@
-#include <g3x.h>
-#include "../include/shape.h"
 #include "../include/cube.h"
-#include "../include/utils.h"
-
-static double CUBE_W = 2.0;       // Côté du cube.
 
 void draw_points_cube(Shape *shape, G3Xvector scale_factor)
 {
@@ -21,6 +16,7 @@ void draw_faces_cube(Shape *shape, G3Xvector scale_factor)
     glScalef(scale_factor.x, scale_factor.y, scale_factor.z);
 
     glBegin(GL_TRIANGLES);
+    printf("CUBE STEP = %f\n", step);
     for (int i = 0; i < shape->n1; i += step)
     {
         g3x_Material(G3Xr, .2, .6, .9, 1, 1);
@@ -171,7 +167,7 @@ Shape init_cube()
     Shape cube;
     cube.n1 = NBM / 2;
     cube.n2 = NBP / 2;
-    
+
     unsigned int vertex_number = 6 * (cube.n1 + 1) * (cube.n2 + 1);
     cube.vrtx        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
     cube.norm        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
@@ -271,10 +267,3 @@ Shape init_cube()
 
     return cube;
 }
-
-void draw_cube(G3Xvector scale_factor)
-{
-    Shape cube = init_cube();
-    cube.draw_faces(&cube, scale_factor);
-}
-
