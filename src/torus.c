@@ -31,32 +31,38 @@ void draw_faces_torus(Shape *shape, G3Xvector scale_factor)
     glEnd();
 }
 
-Shape init_torus()
+int init_torus(ShapePtr *torus)
 {
-    Shape torus;
-    torus.n1 = NBM;
-    torus.n2 = NBP;
-
-    double       theta         = 2 * PI / torus.n1;
-    double       phi           = 2 * PI / (torus.n2 - 1); // -1 ici, car on veut torus.n2 faces et pas torus.n2 lignes
-    unsigned int vertex_number = torus.n1 * torus.n2;
-    torus.vrtx        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
-    torus.norm        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
-    torus.draw_points = draw_points_torus;
-    torus.draw_faces  = draw_faces_torus;
-
-    for (int i = 0; i < torus.n1; i++)
+    if (NULL == ((*torus) = (Shape *) malloc(sizeof(Shape))))
     {
-        for (int j = 0; j < torus.n2; j++)
+        return 0;
+    }
+
+    (*torus)->n1 = NBM;
+    (*torus)->n2 = NBP;
+
+    double       theta         = 2 * PI / (*torus)->n1;
+    double       phi           =
+                         2 * PI /
+                         ((*torus)->n2 - 1); // -1 ici, car on veut (*torus)->n2 faces et pas (*torus)->n2 lignes
+    unsigned int vertex_number = (*torus)->n1 * (*torus)->n2;
+    (*torus)->vrtx        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
+    (*torus)->norm        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
+    (*torus)->draw_points = draw_points_torus;
+    (*torus)->draw_faces  = draw_faces_torus;
+
+    for (int i = 0; i < (*torus)->n1; i++)
+    {
+        for (int j = 0; j < (*torus)->n2; j++)
         {
-            torus.norm[i * torus.n1 + j] = (G3Xpoint) { cos(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
-                                                        -sin(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
-                                                        TORUS_S * sin(j * phi) };
-            torus.vrtx[i * torus.n1 + j] = (G3Xpoint) { cos(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
-                                                        -sin(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
-                                                        TORUS_S * sin(j * phi) };
+            (*torus)->norm[i * (*torus)->n1 + j] = (G3Xpoint) { cos(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
+                                                                -sin(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
+                                                                TORUS_S * sin(j * phi) };
+            (*torus)->vrtx[i * (*torus)->n1 + j] = (G3Xpoint) { cos(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
+                                                                -sin(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
+                                                                TORUS_S * sin(j * phi) };
         }
     }
 
-    return torus;
+    return 1;
 }

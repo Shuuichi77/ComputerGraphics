@@ -10,6 +10,6 @@ void draw_points_cube(Shape *shape, G3Xvector scale_factor);
 
 void draw_faces_cube(Shape *shape, G3Xvector scale_factor);
 
-Shape init_cube();
+int init_cube(ShapePtr *cube);
 
 #endif

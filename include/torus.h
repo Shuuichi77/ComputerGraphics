@@ -11,6 +11,6 @@ void draw_points_torus(Shape *shape, G3Xvector scale_factor);
 
 void draw_faces_torus(Shape *shape, G3Xvector scale_factor);
 
-Shape init_torus();
+int init_torus(ShapePtr *torus);
 
 #endif

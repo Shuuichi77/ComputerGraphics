@@ -10,6 +10,6 @@ void draw_points_sphere(Shape *shape, G3Xvector scale_factor);
 
 void draw_faces_sphere(Shape *shape, G3Xvector scale_factor);
 
-Shape init_sphere();
+int init_sphere(ShapePtr *sphere);
 
 #endif

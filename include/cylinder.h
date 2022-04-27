@@ -11,6 +11,6 @@ void draw_points_cylinder(Shape *shape, G3Xvector scale_factor);
 
 void draw_faces_cylinder(Shape *shape, G3Xvector scale_factor);
 
-Shape init_cylinder();
+int init_cylinder(ShapePtr *cylinder);
 
 #endif

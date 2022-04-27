@@ -21,7 +21,7 @@ typedef struct _shape_
     /* Méthode d’affichage - spécifique d’une forme */
     void (*draw_points)(struct _shape_ *, G3Xvector scale_factor); /* Mode GL_POINTS */
     void (*draw_faces )(struct _shape_ *, G3Xvector scale_factor); /* Mode GL_TRIANGLES ou GL_QUADS */
-} Shape;
+} Shape, *ShapePtr;
 
 /**
  * Renvoie le minimum entre a et b.
