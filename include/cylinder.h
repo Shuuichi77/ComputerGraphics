@@ -4,7 +4,6 @@
 #include <g3x.h>
 #include "shape.h"
 
-extern double step;
 static double CYLINDER_H = 2;   // Cylinder height length
 static double CYLINDER_R = 1;   // Cylinder radius length
 

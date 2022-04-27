@@ -4,7 +4,6 @@
 #include <g3x.h>
 #include "shape.h"
 
-extern double step;
 static double TORUS_R = 1.0;    // Hole radius
 static double TORUS_S = 0.5;    // Tore radius
 

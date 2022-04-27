@@ -4,7 +4,6 @@
 #include <g3x.h>
 #include "shape.h"
 
-extern double step;
 static double SPHERE_R = 1.0;   // Sphere radius
 
 void draw_points_sphere(Shape *shape, G3Xvector scale_factor);
