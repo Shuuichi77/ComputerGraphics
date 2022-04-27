@@ -1,11 +1,14 @@
 #ifndef __SHAPE_H__
 #define __SHAPE_H__
 
-#include <g3x.h>
-
 // Rouge    : x
 // Vert     : y
 // Bleu     : z
+
+#include <g3x.h>
+
+#define NBM 100                   // Nombre de méridiens (lignes verticales)
+#define NBP 100                   // Nombre de parallèles (lignes horizontales)
 
 static double step = 1.0;         // Pas de rendu
 
