@@ -39,7 +39,5 @@ bin = .
 	@echo "  lib g3Ox/OpenGl : $(libG3X)$(COMP)"
 	@echo "  headers        : $(incG3X)"
 clean :
-	@rm -f *.o
-cleanall :
-	@rm -f *.o g2x_squelette g2x_example
+	@rm -f *.o main
 
