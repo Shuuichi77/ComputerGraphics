@@ -3,7 +3,6 @@
 #include "../include/cylinder.h"
 #include "../include/utils.h"
 
-#define NBC 50                    // Nombre de cercles sur les bases
 
 static double CYLINDER_H = 2;              // Hauteur du cylindre
 static double CYLINDER_R = 1;             // Rayon du cylindre
@@ -28,65 +27,67 @@ void draw_faces_cylinder(Shape *shape, G3Xvector scale_factor)
         for (int j = 0; j < shape->n2 - 1; j += step)
         {
             // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * (shape->n1 + NBC * 2) + min(j + step, shape->n2 - 1));
-            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * (shape->n1 + NBC * 2) +
+            NormalVertex3dv(*shape, i * (shape->n1 + shape->n3 * 2) + min(j + step, shape->n2 - 1));
+            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * (shape->n1 + shape->n3 * 2) +
                                     min(j + step, shape->n2 - 1));
-            NormalVertex3dv(*shape, i * (shape->n1 + NBC * 2) + j);
+            NormalVertex3dv(*shape, i * (shape->n1 + shape->n3 * 2) + j);
 
             // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * (shape->n1 + NBC * 2) + j);
-            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * (shape->n1 + NBC * 2) +
+            NormalVertex3dv(*shape, i * (shape->n1 + shape->n3 * 2) + j);
+            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * (shape->n1 + shape->n3 * 2) +
                                     min(j + step, shape->n2 - 1));
-            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * (shape->n1 + NBC * 2) + j);
+            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * (shape->n1 + shape->n3 * 2) + j);
         }
 
-        for (int k = 0; k < NBC; k += step)
+        for (int k = 0; k < shape->n3; k += step)
         {
             // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + min(k + step, NBC - 1));
+            NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + min(k + step, shape->n3 - 1));
             NormalVertex3dv(*shape, min(i + step, shape->n1) % shape->n1 * (shape->n1 + shape->n2) + shape->n2 +
-                                    min(k + step, NBC - 1));
+                                    min(k + step, shape->n3 - 1));
             NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + k);
 
 
             // Second triangle (NW -> SE -> NE)
             NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + k);
             NormalVertex3dv(*shape, min(i + step, shape->n1) % shape->n1 * (shape->n1 + shape->n2) + shape->n2 +
-                                    min(k + step, NBC - 1));
+                                    min(k + step, shape->n3 - 1));
             NormalVertex3dv(*shape, min(i + step, shape->n1) % shape->n1 * (shape->n1 + shape->n2) + shape->n2 + k);
         }
 
-        for (int l = 0; l < NBC; l += step)
+        for (int l = 0; l < shape->n3; l += step)
         {
             // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + NBC + min(l + step, NBC - 1));
-            NormalVertex3dv(*shape, min(i + step, shape->n1) % shape->n1 * (shape->n1 + shape->n2) + shape->n2 + NBC +
-                                    min(l + step, NBC - 1));
-            NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + NBC + l);
+            NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + shape->n3 + min(l + step, shape->n3 - 1));
+            NormalVertex3dv(*shape,
+                            min(i + step, shape->n1) % shape->n1 * (shape->n1 + shape->n2) + shape->n2 + shape->n3 +
+                            min(l + step, shape->n3 - 1));
+            NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + shape->n3 + l);
 
             // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + NBC + l);
-            NormalVertex3dv(*shape, min(i + step, shape->n1) % shape->n1 * (shape->n1 + shape->n2) + shape->n2 + NBC +
-                                    min(l + step, NBC - 1));
+            NormalVertex3dv(*shape, i * (shape->n1 + shape->n2) + shape->n2 + shape->n3 + l);
             NormalVertex3dv(*shape,
-                            min(i + step, shape->n1) % shape->n1 * (shape->n1 + shape->n2) + shape->n2 + NBC + l);
+                            min(i + step, shape->n1) % shape->n1 * (shape->n1 + shape->n2) + shape->n2 + shape->n3 +
+                            min(l + step, shape->n3 - 1));
+            NormalVertex3dv(*shape,
+                            min(i + step, shape->n1) % shape->n1 * (shape->n1 + shape->n2) + shape->n2 + shape->n3 + l);
         }
     }
     glEnd();
 }
-
 
 Shape init_cylinder()
 {
     Shape cylinder;
     cylinder.n1 = NBM;
     cylinder.n2 = NBP;
+    cylinder.n3 = NBC;
 
     double theta = 2 * PI / cylinder.n1;
     double t     = CYLINDER_H / (cylinder.n2 - 1);
-    double r     = CYLINDER_R / (NBC - 1);
+    double r     = CYLINDER_R / (cylinder.n3 - 1);
 
-    unsigned int vertex_number = cylinder.n1 * cylinder.n2 + cylinder.n1 * (NBC * 2);
+    unsigned int vertex_number = cylinder.n1 * cylinder.n2 + cylinder.n1 * (cylinder.n3 * 2);
 
     cylinder.vrtx        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
     cylinder.norm        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
@@ -97,15 +98,15 @@ Shape init_cylinder()
     {
         for (int j = 0; j < cylinder.n2; j++)
         {
-            cylinder.norm[i * (cylinder.n1 + NBC * 2) + j] = (G3Xpoint) { CYLINDER_R * cos(i * theta),
-                                                                          CYLINDER_R * sin(i * theta),
-                                                                          (j * t) - (CYLINDER_H / 2.) };
+            cylinder.norm[i * (cylinder.n1 + cylinder.n3 * 2) + j] = (G3Xpoint) { CYLINDER_R * cos(i * theta),
+                                                                                  CYLINDER_R * sin(i * theta),
+                                                                                  (j * t) - (CYLINDER_H / 2.) };
 
-            cylinder.vrtx[i * (cylinder.n1 + NBC * 2) + j] = (G3Xpoint) { CYLINDER_R * cos(i * theta),
-                                                                          CYLINDER_R * sin(i * theta),
-                                                                          (j * t) - (CYLINDER_H / 2.) };
+            cylinder.vrtx[i * (cylinder.n1 + cylinder.n3 * 2) + j] = (G3Xpoint) { CYLINDER_R * cos(i * theta),
+                                                                                  CYLINDER_R * sin(i * theta),
+                                                                                  (j * t) - (CYLINDER_H / 2.) };
         }
-        for (int k = 0; k < NBC; k++)
+        for (int k = 0; k < cylinder.n3; k++)
         {
             cylinder.norm[i * (cylinder.n1 + cylinder.n2) + cylinder.n2 + k] = (G3Xpoint) { (k * r) * cos(i * theta),
                                                                                             (k * r) * sin(i * theta),
@@ -116,14 +117,14 @@ Shape init_cylinder()
                                                                                             CYLINDER_H / 2. };
         }
 
-        for (int l = 0; l < NBC; l++)
+        for (int l = 0; l < cylinder.n3; l++)
         {
-            cylinder.norm[i * (cylinder.n1 + cylinder.n2) + cylinder.n2 + NBC + l] = (G3Xpoint) {
+            cylinder.norm[i * (cylinder.n1 + cylinder.n2) + cylinder.n2 + cylinder.n3 + l] = (G3Xpoint) {
                     (l * r) * cos(i * theta),
                     (l * r) * sin(i * theta),
                     -CYLINDER_H / 2. };
 
-            cylinder.vrtx[i * (cylinder.n1 + cylinder.n2) + cylinder.n2 + NBC + l] = (G3Xpoint) {
+            cylinder.vrtx[i * (cylinder.n1 + cylinder.n2) + cylinder.n2 + cylinder.n3 + l] = (G3Xpoint) {
                     (l * r) * cos(i * theta),
                     (l * r) * sin(i * theta),
                     -CYLINDER_H / 2. };

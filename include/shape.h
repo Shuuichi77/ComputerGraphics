@@ -9,6 +9,7 @@
 
 #define NBM 100                   // Nombre de méridiens (lignes verticales)
 #define NBP 100                   // Nombre de parallèles (lignes horizontales)
+#define NBC 50                    // Nombre de cercles sur les bases (pour le cylindre)
 
 static double step = 1.0;         // Pas de rendu
 
