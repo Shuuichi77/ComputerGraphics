@@ -11,9 +11,7 @@ void draw_points_cylinder(Shape *shape, G3Xvector scale_factor)
 
 void draw_faces_cylinder(Shape *shape, G3Xvector scale_factor)
 {
-    g3x_Material(G3Xr, .2, .6, .9, 1, 1);
     glScalef(scale_factor.x, scale_factor.y, scale_factor.z);
-
     glBegin(GL_TRIANGLES);
     for (int i = 0; i < shape->n1; i += step)
     {
