@@ -1,4 +1,5 @@
 #include "../include/cube.h"
+#include "../include/cylinder.h"
 #include "../include/node.h"
 #include "../include/table.h"
 
@@ -10,16 +11,16 @@ int init_table_leg(SceneTree *father, SceneTree *next, Shape *cylinder, int leg_
     {
         if (!add_child(father)) { return 0; }
         (*father)->down->instance = cylinder;
-        translate(&(*father)->down, desk_length * 0.05, desk_width * 0.1, 0.5);
+        translate(&(*father)->down, desk_length * 0.05, desk_width * 0.1, LEG_Z);
         return init_table_leg(father, &(*father)->down, cylinder, leg_num + 1);
     }
     else
     {
         if (!add_next(next, father)) { return 0; }
         (*next)->next->instance = cylinder;
-        if (leg_num == 1) { translate(&(*next)->next, desk_length * 0.95, desk_width * 0.1, 0.5); }
-        else if (leg_num == 2) { translate(&(*next)->next, desk_length * 0.95, desk_width * 0.9, 0.5); }
-        else if (leg_num == 3) { translate(&(*next)->next, desk_length * 0.05, desk_width * 0.9, 0.5); }
+        if (leg_num == 1) { translate(&(*next)->next, desk_length * 0.95, desk_width * 0.1, LEG_Z); }
+        else if (leg_num == 2) { translate(&(*next)->next, desk_length * 0.95, desk_width * 0.9, LEG_Z); }
+        else if (leg_num == 3) { translate(&(*next)->next, desk_length * 0.05, desk_width * 0.9, LEG_Z); }
         return init_table_leg(father, &(*next)->next, cylinder, leg_num + 1);
     }
 }
@@ -30,7 +31,9 @@ int init_table_legs(SceneTree *table, SceneTree *desk, Shape *cylinder)
     if (!add_next(desk, table)) { return 0; }
 
     (*desk)->next->col          = grey;
-    (*desk)->next->scale_factor = (G3Xvector) { 0.05, 0.05, 0.5 };
+    (*desk)->next->scale_factor = (G3Xvector) { (desk_length + desk_width) * 0.02,
+                                                (desk_length + desk_width) * 0.02,
+                                                LEG_Z };
 
     return init_table_leg(&(*desk)->next, NULL, cylinder, 0);
 }
@@ -39,9 +42,9 @@ int init_table_desk(SceneTree *table, Shape *cube)
 {
     if (!add_child(table)) { return 0; }
     (*table)->down->instance     = cube;
-    (*table)->down->col          = brown;
+    (*table)->down->col          = light_brown;
     (*table)->down->scale_factor = (G3Xvector) { DESK_X, DESK_Y, DESK_Z };
-    translate(&(*table)->down, 0, 0, 1.0);
+    translate(&(*table)->down, 0, 0, leg_height);
 
     return 1;
 }

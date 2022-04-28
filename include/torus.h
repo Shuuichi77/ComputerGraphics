@@ -4,8 +4,8 @@
 #include <g3x.h>
 #include "shape.h"
 
-static double TORUS_R = 1.0;    // Hole radius
-static double TORUS_S = 0.5;    // Tore radius
+static double const TORUS_R = 1.0;    // Hole radius
+static double const TORUS_S = 0.5;    // Tore radius
 
 void draw_points_torus(Shape *shape, G3Xvector scale_factor);
 

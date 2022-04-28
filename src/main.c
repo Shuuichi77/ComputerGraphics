@@ -5,6 +5,7 @@
 #include "../include/torus.h"
 
 #include "../include/floor.h"
+#include "../include/stool.h"
 #include "../include/table.h"
 
 
@@ -13,8 +14,10 @@ static Shape *cube;
 static Shape *cylinder;
 static Shape *sphere;
 static Shape *torus;
-static Node  *table;
-static Node  *floor_tiles;
+
+static Node *floor_tiles;
+static Node *table;
+static Node *stool;
 
 /* la fonction d'initialisation : appelée 1 seule fois, au début */
 static void init(void)
@@ -43,17 +46,25 @@ static void init(void)
     }
     /* ----------------------------------------------- */
 
+    if (!init_floor(&floor_tiles, cube))
+    {
+        fprintf(stderr, "Error in init_floor() malloc\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (!init_stool(&stool, cube, cylinder))
+    {
+        fprintf(stderr, "Error in init_stool() malloc\n");
+        exit(EXIT_FAILURE);
+    }
+
     if (!init_table(&table, cube, cylinder))
     {
         fprintf(stderr, "Error in init_table() malloc\n");
         exit(EXIT_FAILURE);
     }
 
-    if (!init_floor(&floor_tiles, cube))
-    {
-        fprintf(stderr, "Error in init_floor() malloc\n");
-        exit(EXIT_FAILURE);
-    }
+
 
     /* ----------------------------------------------- */
 }
@@ -64,10 +75,22 @@ static void ctrl(void)
     g3x_CreateScrollv_d("step", &step, 1, 10, 1, "Pas de rendu");
 }
 
-/* la fonction de dessin : appelée en boucle */
-static void draw(void)
+static void draw_stool_on_desk(void)
 {
-    glPointSize(3);
+    glPushMatrix();
+    draw_node(table);
+    glPopMatrix();
+
+    glPushMatrix();
+    glRotatef(180, 1., 0., 0.);
+    glTranslatef(desk_length * 0.05, -desk_width * 0.3, -2 * (leg_height + desk_height + floor_height) + desk_height);
+    draw_node(stool);
+    glPopMatrix();
+}
+
+static void draw_desks_and_stools(void)
+{
+    glScaled(0.7, 0.7, 0.7);
 
     glPushMatrix();
     glTranslatef(-floor_length, -floor_length, 0.);
@@ -75,26 +98,28 @@ static void draw(void)
     glPopMatrix();
 
     glPushMatrix();
-    glRotatef(135, 0., 0., 1.);    /* une rotation autour de l'axe 'x' */
+    glRotatef(135, 0., 0., 1.);
     glTranslatef(0, floor_length * 0.7, 0.);
-    draw_node(table);
+    draw_stool_on_desk();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-floor_length * 0.5, floor_length * 0.5, 0.);
+    draw_node(stool);
     glPopMatrix();
 
     glPushMatrix();
     glRotatef(130, 0., 0., 1.);    /* une rotation autour de l'axe 'x' */
-    glTranslatef(floor_length * 0.7, 0, 0.);
+    glTranslatef(-floor_length * 0.7, 0, 0.);
     draw_node(table);
     glPopMatrix();
+}
 
-//    glPushMatrix();
-//    glTranslatef(-desk_x * 1.1, -desk_y * 1.1, 0.);
-//    draw_node(table);
-//    glPopMatrix();
-//
-//    glPushMatrix();
-//    glTranslatef(-desk_x * 1.1, 0, 0.);
-//    draw_node(table);
-//    glPopMatrix();
+/* la fonction de dessin : appelée en boucle */
+static void draw(void)
+{
+    glPointSize(3);
+    draw_desks_and_stools();
 }
 
 /* la fonction d'animation (facultatif) */

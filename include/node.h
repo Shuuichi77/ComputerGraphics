@@ -4,10 +4,13 @@
 #include <g3x.h>
 #include "shape.h"
 
-static G3Xcolor brown      = { 0.30, 0.20, 0.10, .0 };
-static G3Xcolor grey       = { 144.0 / 255.0, 144.0 / 255.0, 144.0 / 255.0, .0 };
-static G3Xcolor dark_grey  = { 105.0 / 255.0, 105.0 / 255.0, 105.0 / 255.0, .0 };
-static G3Xcolor light_grey = { 211.0 / 255.0, 211.0 / 255.0, 211.0 / 255.0, .0 };
+
+static G3Xcolor dark_yellow = { 71.0 / 255.0, 69.0 / 255.0, 11.0 / 255.0, .0 };
+static G3Xcolor light_brown = { 71.0 / 255.0, 40.0 / 255.0, 11.0 / 255.0, .0 };
+static G3Xcolor dark_brown  = { 40.0 / 255.0, 26.0 / 255.0, 13.0 / 255.0, .0 };
+static G3Xcolor grey        = { 144.0 / 255.0, 144.0 / 255.0, 144.0 / 255.0, .0 };
+static G3Xcolor dark_grey   = { 105.0 / 255.0, 105.0 / 255.0, 105.0 / 255.0, .0 };
+static G3Xcolor light_grey  = { 211.0 / 255.0, 211.0 / 255.0, 211.0 / 255.0, .0 };
 
 typedef struct _node_
 {
