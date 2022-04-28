@@ -36,19 +36,37 @@ void rotate_z(SceneTree *node, double dz)
     (*node)->Md = g3x_Mat_x_Mat((*node)->Md, g3x_RotationZ(deg_to_rad(dz)));
 }
 
-int add_child(SceneTree *node)
+SceneTree createNode()
 {
-    assert(node != NULL);
+    return (Node *) malloc(sizeof(Node));
+}
 
-    if (NULL == ((*node)->down = (Node *) malloc(sizeof(Node)))) { return 0; }
+SceneTree createLeaf(Shape *shape)
+{
+    SceneTree leaf = (Node *) malloc(sizeof(Node));
+    leaf->instance = shape;
+    return leaf;
+}
 
-    (*node)->down->Md  = (*node)->Md;
-    (*node)->down->col = (*node)->col;
-    (*node)->down->mat[0] = (*node)->mat[0];
-    (*node)->down->mat[1] = (*node)->mat[1];
-    (*node)->down->mat[2] = (*node)->mat[2];
-    (*node)->down->mat[3] = (*node)->mat[3];
-    (*node)->down->scale_factor = (*node)->scale_factor;
+int add_child(SceneTree *father)
+{
+    assert(father != NULL);
+    return addChildWithShapeAndColor(father, NULL, (*father)->col);
+}
+
+int addChildWithShapeAndColor(SceneTree *father, Shape *shape, G3Xcolor col)
+{
+    assert(father != NULL);
+
+    if (NULL == ((*father)->down  = (Node *) malloc(sizeof(Node)))) { return 0; }
+    if (shape != NULL) { (*father)->down->instance = shape; }
+    (*father)->down->Md           = (*father)->Md;
+    (*father)->down->col          = col;
+    (*father)->down->scale_factor = (*father)->scale_factor;
+    (*father)->down->mat[0] = (*father)->mat[0];
+    (*father)->down->mat[1] = (*father)->mat[1];
+    (*father)->down->mat[2] = (*father)->mat[2];
+    (*father)->down->mat[3] = (*father)->mat[3];
 
     return 1;
 }
@@ -71,6 +89,25 @@ int add_next(SceneTree *node, SceneTree *father)
     return 1;
 }
 
+int addNextWithShapeAndColor(SceneTree *node, SceneTree *father, Shape *shape, G3Xcolor col)
+{
+    assert(node != NULL);
+    assert(father != NULL);
+
+    if (NULL == ((*node)->next = (Node *) malloc(sizeof(Node)))) { return 0; }
+    if (shape != NULL) { (*node)->next->instance = shape; }
+
+    (*node)->next->Md  = (*father)->Md;
+    (*node)->next->col = col;
+    (*node)->next->mat[0] = (*father)->mat[0];
+    (*node)->next->mat[1] = (*father)->mat[1];
+    (*node)->next->mat[2] = (*father)->mat[2];
+    (*node)->next->mat[3] = (*father)->mat[3];
+    (*node)->next->scale_factor = (*father)->scale_factor;
+
+    return 1;
+}
+
 void draw_node(Node *node)
 {
     if (node == NULL) { return; }
@@ -78,11 +115,7 @@ void draw_node(Node *node)
     g3x_Material(node->col, node->mat[0], node->mat[1], node->mat[2], node->mat[3], 0.);
     glPushMatrix();
     glMultMatrixd(node->Md.m);
-    if (node->instance != NULL)
-    {
-//        printf("%f %f %f\n", node->Md.m[12], node->Md.m[13], node->Md.m[14]);
-        node->instance->draw_faces(node->instance, node->scale_factor);
-    }
+    if (node->instance != NULL) { node->instance->draw_faces(node->instance, node->scale_factor); }
     glPopMatrix();
 
     draw_node(node->next);

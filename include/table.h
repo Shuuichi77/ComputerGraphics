@@ -6,7 +6,7 @@
 #include "cylinder.h"
 #include "node.h"
 
-static double const DESK_X = 1;
+static double const DESK_X = 0.75;
 static double const DESK_Y = 0.5;
 static double const DESK_Z = 0.1;
 static double const LEG_Z  = 0.5;

@@ -12,8 +12,6 @@ static double const FLOOR_Z = 0.001;
 static double floor_length = FLOOR_X * CUBE_W;
 static double floor_height = FLOOR_Z * CUBE_W;
 
-static int const NB_PAIR_TILES = 5;
-
 int init_floor(SceneTree *floor, Shape *cube);
 
 #endif

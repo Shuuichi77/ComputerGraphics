@@ -4,16 +4,17 @@
 #include <g3x.h>
 #include "shape.h"
 
-static G3Xcolor red   = { 1.00, 0.00, 0.00, 0.00 };
-static G3Xcolor green = { 0.00, 1.00, 0.00, 0.00 };
-static G3Xcolor blue  = { 0.00, 0.00, 1.00, 0.00 };
-
+static G3Xcolor red         = { 1.00, 0.00, 0.00, 0.00 };
+static G3Xcolor green       = { 0.00, 1.00, 0.00, 0.00 };
+static G3Xcolor blue        = { 0.00, 0.00, 1.00, 0.00 };
 static G3Xcolor dark_yellow = { 71.0 / 255.0, 69.0 / 255.0, 11.0 / 255.0, .0 };
 static G3Xcolor light_brown = { 71.0 / 255.0, 40.0 / 255.0, 11.0 / 255.0, .0 };
 static G3Xcolor dark_brown  = { 40.0 / 255.0, 26.0 / 255.0, 13.0 / 255.0, .0 };
 static G3Xcolor grey        = { 144.0 / 255.0, 144.0 / 255.0, 144.0 / 255.0, .0 };
 static G3Xcolor dark_grey   = { 105.0 / 255.0, 105.0 / 255.0, 105.0 / 255.0, .0 };
-static G3Xcolor light_grey  = { 211.0 / 255.0, 211.0 / 255.0, 211.0 / 255.0, .0 };
+static G3Xcolor light_grey  = { 180.0 / 255.0, 180.0 / 255.0, 180.0 / 255.0, .0 };
+
+static float default_mat[4] = { 0.25, 0.5, 0.6, 1.0 };
 
 typedef struct _node_
 {
@@ -23,7 +24,9 @@ typedef struct _node_
     float         mat[4];           /* 4 réels dans [0,1] : (ambi, diff, spec, shine) */
     G3Xvector     scale_factor;     /* facteurs d’échelles locaux en x, y, z */
     Shape         *instance;        /* une éventuelle instance d’objet */
-}               Node, *SceneTree;
+}            Node, *SceneTree;
+
+SceneTree createNode();
 
 void scalef(SceneTree *node, double hx, double hy, double hz);
 
@@ -37,7 +40,11 @@ void rotate_z(SceneTree *node, double dz);
 
 int add_child(SceneTree *father);
 
+int addChildWithShapeAndColor(SceneTree *father, Shape *shape, G3Xcolor col);
+
 int add_next(SceneTree *node, SceneTree *father);
+
+int addNextWithShapeAndColor(SceneTree *node, SceneTree *father, Shape *shape, G3Xcolor col);
 
 void draw_node(Node *node);
 

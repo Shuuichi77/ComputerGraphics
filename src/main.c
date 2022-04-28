@@ -14,6 +14,9 @@
 
 static G3Xpoint TARGET;
 
+static int NB_PAIR_STELE = 2;
+static int *random_radius;
+
 static int   WWIDTH = 512, WHEIGHT = 512;
 static Shape *cube;
 static Shape *cylinder;
@@ -32,6 +35,18 @@ static Node *stele;
 static void init(void)
 {
     srand(time(0));
+
+    if (NULL == (random_radius = (int *) malloc(sizeof(int) * NB_PAIR_STELE * 2)))
+    {
+        fprintf(stderr, "Error in random_radius malloc\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < NB_PAIR_STELE * 2; i++)
+    {
+        random_radius[i] = rand();
+    }
+
     /* Call each init function only 1 time : we'll then use an instance of each shape */
     /* ----------------------------------------------- */
     if (!init_cube(&cube))
@@ -101,26 +116,28 @@ static void init(void)
     /* ----------------------------------------------- */
 }
 
-static void decrease_x() { TARGET.x--; }
 
-static void increase_x() { TARGET.x++; }
+static void camera_info(void)
+{
+    G3Xcamera *cam = g3x_GetCamera();
+    fprintf(stderr, "position (x:%lf,y:%lf,z:%lf)\n", cam->pos->x, cam->pos->y, cam->pos->z);
+    fprintf(stderr, "cible    (x:%lf,y:%lf,z:%lf)\n", cam->tar->x, cam->tar->y, cam->tar->z);
+    fprintf(stderr, "coord. spheriques (d:%lf,theta:%lf,phi:%lf)\n", cam->dist, cam->theta, cam->phi);
+}
 
 static void ctrl(void)
 {
-//    g3x_CreateScrollv_d("step", &step, 1, 10, 1, "Pas de rendu");
-    g3x_CreateScrollh_d("Target.x", &(TARGET).x, -10, 20, 1, "x");
-    g3x_CreateScrollh_d("Target.y", &(TARGET).y, -10, 20, 1, "y");
-    g3x_CreateScrollh_d("Target.z", &(TARGET).z, -10, 20, 1, "z");
-
-    g3x_SetKeyAction('a', decrease_x, "decrease Target.x");
-    g3x_SetKeyAction('q', increase_x, "increase Target.x");
+    g3x_CreateScrollv_d("step", &step, 1, 10, 1, "Pas de rendu");
+    g3x_SetKeyAction('c', camera_info, "pos./dir. de la camera => terminal");
 
     g3x_CreateScrollv_d("x", &(g3x_GetCamera())->tar->x, -10, 20, 1, "x");
     g3x_CreateScrollv_d("y", &(g3x_GetCamera())->tar->y, -10, 20, 1, "y");
     g3x_CreateScrollv_d("z", &(g3x_GetCamera())->tar->z, -10, 20, 1, "z");
     g3x_CreateScrollv_d("dist", &(g3x_GetCamera()->dist), 1, 20, 1, "dist");
 
-
+    g3x_CreateScrollh_d("Target.z", &(TARGET).z, -10, 20, 1, "z");
+    g3x_CreateScrollh_d("Target.y", &(TARGET).y, -10, 20, 1, "y");
+    g3x_CreateScrollh_d("Target.x", &(TARGET).x, -10, 20, 1, "x");
 }
 
 static void draw_stool_on_desk(void)
@@ -161,16 +178,17 @@ static void draw_desks_and_stools(void)
     glPopMatrix();
 }
 
-static void draw_spinning_top_on_stele()
+static void draw_spinning_top_on_stele(int radius_num)
 {
+    int radius = random_radius[radius_num];
     glPushMatrix();
     draw_node(stele);
     glPopMatrix();
 
     glPushMatrix();
-//    rotate_x(&spinning_top, (rand() % 2) ? -rand() % 45 : rand() % 45);
-    rotate_x(&spinning_top, 40);
     glTranslatef(0., 0., pedestal_height + tower_height);
+    glRotatef(((radius % 2) ? -radius : radius) % 45, 1., 0., 0.);
+    glRotatef(((radius % 2) ? -radius : radius) % 45, 0., 1., 0.);
     draw_node(spinning_top);
     glPopMatrix();
 }
@@ -179,47 +197,53 @@ static void draw_pair_spinning_top_on_stele(int n)
 {
     glPushMatrix();
     glTranslatef(floor_length + pedestal_length / 2., floor_length * n, 0.);
-    draw_spinning_top_on_stele();
+    draw_spinning_top_on_stele(n);
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef(-floor_length - pedestal_length / 2., floor_length * n, 0.);
-    draw_spinning_top_on_stele();
+    draw_spinning_top_on_stele(n + 1);
     glPopMatrix();
 }
 
 static void draw_steles_scene()
 {
     glPushMatrix();
-    glTranslatef(-floor_length, -floor_length * 0.5, 0.);
-    draw_node(floor_tiles);
-    glPopMatrix();
-
-//    printf("-------------------------- DEBUT --------------------------\n");
-//    printf("CAMERA : %f, %f, %f\n", g3x_GetCamera()->pos->x, g3x_GetCamera()->pos->y, g3x_GetCamera()->pos->z);
-    for (int i = 0; i < NB_PAIR_TILES; i++)
+    glScaled(0.25, 0.25, 0.25);
+    for (int i = 0; i < NB_PAIR_STELE; i++)
     {
-//        printf("----------------- %d -----------------\n", i);
+
+        if (i < NB_PAIR_STELE / 2)
+        {
+            glPushMatrix();
+            glTranslatef(-floor_length, i * 2 * floor_length - floor_length / 2., 0.);
+            draw_node(floor_tiles);
+            glPopMatrix();
+        }
+
         glPushMatrix();
         draw_pair_spinning_top_on_stele(i);
         glPopMatrix();
-//        printf("-------------------------------------\n");
     }
-//    printf("--------------------------- FIN ---------------------------\n");
+    glPopMatrix();
 }
 
 /* la fonction de dessin : appelée en boucle */
 static void draw(void)
 {
+    g3x_SetCameraTar(TARGET);
+
     glPointSize(3);
-    draw_desks_and_stools();
+    draw_node(table);
+
+    glTranslatef(2, 2, 0.);
+    draw_node(table);
+
 
 //    glPointSize(3);
-//
-//    g3x_SetCameraTar(TARGET);
-//    glScaled(0.25, 0.25, 0.25);
-//    glTranslatef(0., 0., -2.);
-//
+//    draw_desks_and_stools();
+
+//    glPointSize(3);
 //    draw_steles_scene();
 }
 

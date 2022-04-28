@@ -32,26 +32,31 @@ int init_next_pairs(SceneTree *father, SceneTree *next, Shape *cube, int nb_pair
     return init_next_pairs(father, &(*next)->next->next, cube, nb_pair - 1);
 }
 
-int init_tiles(SceneTree *father, Shape *cube, int nb_pair)
+int init_tiles(SceneTree *father, Shape *cube)
 {
-    if (nb_pair == 0) { return 1; }
-    if (!init_first_pair(father, cube, nb_pair)) { return 0; }
+    if (!addChildWithShapeAndColor(father, cube, dark_grey)) { return 0; }
+    translate(&(*father)->down, 0, floor_length, -floor_height);
 
-    if (nb_pair - 1 == 0) { return 1; }
-    return init_next_pairs(father, &(*father)->down->next, cube, nb_pair - 1);
+    if (!addNextWithShapeAndColor(&(*father)->down, father, cube, light_grey)) { return 0; }
+    translate(&(*father)->down->next, floor_length, floor_length, -floor_height);
+
+    if (!addNextWithShapeAndColor(&(*father)->down->next, father, cube, dark_grey)) { return 0; }
+    translate(&(*father)->down->next->next, floor_length, 0, -floor_height);
+
+    if (!addNextWithShapeAndColor(&(*father)->down->next->next, father, cube, light_grey)) { return 0; }
+    translate(&(*father)->down->next->next->next, 0, 0, -floor_height);
+
+    return 1;
 }
 
 int init_floor(SceneTree *floor, Shape *cube)
 {
     if (((*floor) = (Node *) malloc(sizeof(Node))) == NULL) { return 0; }
-    (*floor)->mat[0] = 0.25;
-    (*floor)->mat[1] = 0.5;
-    (*floor)->mat[2] = 0.0;
-    (*floor)->mat[3] = 1.;
+    memcpy((*floor)->mat, default_mat, 4 * sizeof(float));
     (*floor)->scale_factor = (G3Xvector) { FLOOR_X, FLOOR_Y, FLOOR_Z };
     (*floor)->Md           = g3x_Identity();
 
-    return init_tiles(floor, cube, NB_PAIR_TILES);
+    return init_tiles(floor, cube);
 }
 
 

@@ -49,11 +49,8 @@ int init_stool_desk(SceneTree *stool, Shape *cylinder)
 
 int init_stool(SceneTree *stool, Shape *cube, Shape *cylinder)
 {
-    if (((*stool) = (Node *) malloc(sizeof(Node))) == NULL) { return 0; }
-    (*stool)->mat[0] = 0.25;
-    (*stool)->mat[1] = 0.5;
-    (*stool)->mat[2] = 0.0;
-    (*stool)->mat[3] = 1.;
+    if (((*stool) = createNode()) == NULL) { return 0; }
+    memcpy((*stool)->mat, default_mat, 4 * sizeof(float));
     (*stool)->Md = g3x_Identity();
 
     return init_stool_desk(stool, cylinder) && init_stool_legs(stool, &(*stool)->down, cube);

@@ -3,7 +3,6 @@
 int init_table_leg(SceneTree *father, SceneTree *next, Shape *cylinder, int leg_num)
 {
     if (leg_num == 4) { return 1; }
-
     if (leg_num == 0)
     {
         if (!add_child(father)) { return 0; }
@@ -48,11 +47,8 @@ int init_table_desk(SceneTree *table, Shape *cube)
 
 int init_table(SceneTree *table, Shape *cube, Shape *cylinder)
 {
-    if (((*table) = (Node *) malloc(sizeof(Node))) == NULL) { return 0; }
-    (*table)->mat[0] = 0.25;
-    (*table)->mat[1] = 0.5;
-    (*table)->mat[2] = 0.0;
-    (*table)->mat[3] = 1.;
+    if (((*table) = createNode()) == NULL) { return 0; }
+    memcpy((*table)->mat, default_mat, 4 * sizeof(float));
     (*table)->Md = g3x_Identity();
     translate(table, -desk_length / 2., -desk_width / 2., 0.);
 
