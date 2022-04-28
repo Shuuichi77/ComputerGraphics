@@ -1,4 +1,6 @@
 #include <g3x.h>
+#include <time.h>
+
 #include "../include/cube.h"
 #include "../include/cylinder.h"
 #include "../include/sphere.h"
@@ -7,22 +9,29 @@
 #include "../include/floor.h"
 #include "../include/stool.h"
 #include "../include/spinning_top.h"
+#include "../include/stele.h"
 #include "../include/table.h"
+
+static G3Xpoint TARGET;
 
 static int   WWIDTH = 512, WHEIGHT = 512;
 static Shape *cube;
 static Shape *cylinder;
 static Shape *sphere;
-static Shape *torus;
+static Shape *spinning_top_torus;
+static Shape *stele_torus;
 
 static Node *floor_tiles;
 static Node *table;
 static Node *stool;
+
 static Node *spinning_top;
+static Node *stele;
 
 /* la fonction d'initialisation : appelée 1 seule fois, au début */
 static void init(void)
 {
+    srand(time(0));
     /* Call each init function only 1 time : we'll then use an instance of each shape */
     /* ----------------------------------------------- */
     if (!init_cube(&cube))
@@ -41,8 +50,19 @@ static void init(void)
         exit(EXIT_FAILURE);
     }
 
-    double torus_radius = 0.2;
-    if (!init_torus(&torus, SPHERE_R * torus_radius, SPHERE_R * (1 + torus_radius)))
+    double spinning_top_torus_radius = 0.2;
+    if (!init_torus(&spinning_top_torus,
+                    SPHERE_R * spinning_top_torus_radius,
+                    SPHERE_R * (1 + spinning_top_torus_radius)))
+    {
+        fprintf(stderr, "Error in init_torus() malloc\n");
+        exit(EXIT_FAILURE);
+    }
+
+    double stele_torus_radius = 0.1;
+    if (!init_torus(&stele_torus,
+                    CYLINDER_R * stele_torus_radius,
+                    CYLINDER_R * (1 + stele_torus_radius)))
     {
         fprintf(stderr, "Error in init_torus() malloc\n");
         exit(EXIT_FAILURE);
@@ -67,18 +87,40 @@ static void init(void)
         exit(EXIT_FAILURE);
     }
 
-    if (!init_spinning_top(&spinning_top, cylinder, sphere, torus))
+    if (!init_spinning_top(&spinning_top, cylinder, sphere, spinning_top_torus))
     {
-        fprintf(stderr, "Error in init_table() malloc\n");
+        fprintf(stderr, "Error in init_spinning_top() malloc\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (!init_stele(&stele, cube, cylinder, stele_torus))
+    {
+        fprintf(stderr, "Error in init_stele() malloc\n");
         exit(EXIT_FAILURE);
     }
     /* ----------------------------------------------- */
 }
 
-/* la fonction de contrôle : appelée 1 seule fois, juste après <init> */
+static void decrease_x() { TARGET.x--; }
+
+static void increase_x() { TARGET.x++; }
+
 static void ctrl(void)
 {
-    g3x_CreateScrollv_d("step", &step, 1, 10, 1, "Pas de rendu");
+//    g3x_CreateScrollv_d("step", &step, 1, 10, 1, "Pas de rendu");
+    g3x_CreateScrollh_d("Target.x", &(TARGET).x, -10, 20, 1, "x");
+    g3x_CreateScrollh_d("Target.y", &(TARGET).y, -10, 20, 1, "y");
+    g3x_CreateScrollh_d("Target.z", &(TARGET).z, -10, 20, 1, "z");
+
+    g3x_SetKeyAction('a', decrease_x, "decrease Target.x");
+    g3x_SetKeyAction('q', increase_x, "increase Target.x");
+
+    g3x_CreateScrollv_d("x", &(g3x_GetCamera())->tar->x, -10, 20, 1, "x");
+    g3x_CreateScrollv_d("y", &(g3x_GetCamera())->tar->y, -10, 20, 1, "y");
+    g3x_CreateScrollv_d("z", &(g3x_GetCamera())->tar->z, -10, 20, 1, "z");
+    g3x_CreateScrollv_d("dist", &(g3x_GetCamera()->dist), 1, 20, 1, "dist");
+
+
 }
 
 static void draw_stool_on_desk(void)
@@ -122,18 +164,63 @@ static void draw_desks_and_stools(void)
 static void draw_spinning_top_on_stele()
 {
     glPushMatrix();
+    draw_node(stele);
+    glPopMatrix();
+
+    glPushMatrix();
+//    rotate_x(&spinning_top, (rand() % 2) ? -rand() % 45 : rand() % 45);
+    rotate_x(&spinning_top, 40);
+    glTranslatef(0., 0., pedestal_height + tower_height);
     draw_node(spinning_top);
     glPopMatrix();
+}
+
+static void draw_pair_spinning_top_on_stele(int n)
+{
+    glPushMatrix();
+    glTranslatef(floor_length + pedestal_length / 2., floor_length * n, 0.);
+    draw_spinning_top_on_stele();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-floor_length - pedestal_length / 2., floor_length * n, 0.);
+    draw_spinning_top_on_stele();
+    glPopMatrix();
+}
+
+static void draw_steles_scene()
+{
+    glPushMatrix();
+    glTranslatef(-floor_length, -floor_length * 0.5, 0.);
+    draw_node(floor_tiles);
+    glPopMatrix();
+
+//    printf("-------------------------- DEBUT --------------------------\n");
+//    printf("CAMERA : %f, %f, %f\n", g3x_GetCamera()->pos->x, g3x_GetCamera()->pos->y, g3x_GetCamera()->pos->z);
+    for (int i = 0; i < NB_PAIR_TILES; i++)
+    {
+//        printf("----------------- %d -----------------\n", i);
+        glPushMatrix();
+        draw_pair_spinning_top_on_stele(i);
+        glPopMatrix();
+//        printf("-------------------------------------\n");
+    }
+//    printf("--------------------------- FIN ---------------------------\n");
 }
 
 /* la fonction de dessin : appelée en boucle */
 static void draw(void)
 {
     glPointSize(3);
-    glScaled(0.7, 0.7, 0.7);
-//    draw_desks_and_stools();
-    draw_spinning_top_on_stele();
+    draw_desks_and_stools();
 
+//    glPointSize(3);
+//
+//    g3x_SetCameraTar(TARGET);
+//    glScaled(0.25, 0.25, 0.25);
+//    glTranslatef(0., 0., -2.);
+//
+//    draw_steles_scene();
 }
 
 /* la fonction d'animation (facultatif) */
@@ -153,9 +240,7 @@ int main(int argc, char **argv)
 {
     /* creation de la fenetre - titre et tailles (pixels) */
     g3x_InitWindow(*argv, WWIDTH, WHEIGHT);
-
-//    g3x_SetCameraSpheric(0., 0.25 * PI, 15., (G3Xpoint) { 0., 0., 0. });
-    g3x_SetInitFunction(init); /* fonction d'initialisation */
+    g3x_SetInitFunction(init); /*² fonction d'initialisation */
     g3x_SetCtrlFunction(ctrl); /* fonction de contrôle      */
     g3x_SetDrawFunction(draw); /* fonction de dessin        */
     g3x_SetAnimFunction(anim); /* fonction d'animation      */

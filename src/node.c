@@ -78,7 +78,11 @@ void draw_node(Node *node)
     g3x_Material(node->col, node->mat[0], node->mat[1], node->mat[2], node->mat[3], 0.);
     glPushMatrix();
     glMultMatrixd(node->Md.m);
-    if (node->instance != NULL) { node->instance->draw_faces(node->instance, node->scale_factor); }
+    if (node->instance != NULL)
+    {
+//        printf("%f %f %f\n", node->Md.m[12], node->Md.m[13], node->Md.m[14]);
+        node->instance->draw_faces(node->instance, node->scale_factor);
+    }
     glPopMatrix();
 
     draw_node(node->next);

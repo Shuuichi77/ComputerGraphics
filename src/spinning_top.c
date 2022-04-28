@@ -41,9 +41,6 @@ int init_spinning_top(SceneTree *spinning_top, Shape *cylinder, Shape *sphere, S
     (*spinning_top)->mat[3] = 1.;
     (*spinning_top)->Md = g3x_Identity();
 
-    rotate_x(spinning_top, (rand() % 2) ? -rand() % 45 : rand() % 45);
-    rotate_y(spinning_top, (rand() % 2) ? -rand() % 45 : rand() % 45);
-
     return init_stick(spinning_top, cylinder) &&
            init_globe(spinning_top, &(*spinning_top)->down, sphere) &&
            init_ring(spinning_top, &(*spinning_top)->down->next, torus);
