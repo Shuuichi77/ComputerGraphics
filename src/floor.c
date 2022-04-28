@@ -1,5 +1,3 @@
-#include "../include/cube.h"
-#include "../include/node.h"
 #include "../include/floor.h"
 
 int init_first_pair(SceneTree *father, Shape *cube, int nb_pair)

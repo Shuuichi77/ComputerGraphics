@@ -1,6 +1,3 @@
-#include "../include/cube.h"
-#include "../include/cylinder.h"
-#include "../include/node.h"
 #include "../include/table.h"
 
 int init_table_leg(SceneTree *father, SceneTree *next, Shape *cylinder, int leg_num)

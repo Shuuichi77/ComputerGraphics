@@ -31,7 +31,7 @@ void draw_faces_torus(Shape *shape, G3Xvector scale_factor)
     glEnd();
 }
 
-int init_torus(ShapePtr *torus)
+int init_torus(ShapePtr *torus, double torus_radius, double total_radius)
 {
     if (NULL == ((*torus) = (Shape *) malloc(sizeof(Shape))))
     {
@@ -42,9 +42,7 @@ int init_torus(ShapePtr *torus)
     (*torus)->n2 = NBP;
 
     double       theta         = 2 * PI / (*torus)->n1;
-    double       phi           =
-                         2 * PI /
-                         ((*torus)->n2 - 1); // -1 ici, car on veut (*torus)->n2 faces et pas (*torus)->n2 lignes
+    double       phi           = 2 * PI / ((*torus)->n2 - 1);
     unsigned int vertex_number = (*torus)->n1 * (*torus)->n2;
     (*torus)->vrtx        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
     (*torus)->norm        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
@@ -55,12 +53,14 @@ int init_torus(ShapePtr *torus)
     {
         for (int j = 0; j < (*torus)->n2; j++)
         {
-            (*torus)->norm[i * (*torus)->n1 + j] = (G3Xpoint) { cos(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
-                                                                -sin(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
-                                                                TORUS_S * sin(j * phi) };
-            (*torus)->vrtx[i * (*torus)->n1 + j] = (G3Xpoint) { cos(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
-                                                                -sin(i * theta) * (TORUS_R + TORUS_S * cos(j * phi)),
-                                                                TORUS_S * sin(j * phi) };
+            (*torus)->norm[i * (*torus)->n1 + j] = (G3Xpoint) {
+                    cos(i * theta) * (total_radius + torus_radius * cos(j * phi)),
+                    -sin(i * theta) * (total_radius + torus_radius * cos(j * phi)),
+                    torus_radius * sin(j * phi) };
+            (*torus)->vrtx[i * (*torus)->n1 + j] = (G3Xpoint) {
+                    cos(i * theta) * (total_radius + torus_radius * cos(j * phi)),
+                    -sin(i * theta) * (total_radius + torus_radius * cos(j * phi)),
+                    torus_radius * sin(j * phi) };
         }
     }
 

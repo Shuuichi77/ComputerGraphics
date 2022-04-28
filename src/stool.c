@@ -1,5 +1,3 @@
-#include "../include/cube.h"
-#include "../include/node.h"
 #include "../include/stool.h"
 
 int init_stool_leg(SceneTree *father, SceneTree *next, Shape *cube, int leg_num)

@@ -6,8 +6,8 @@
 
 #include "../include/floor.h"
 #include "../include/stool.h"
+#include "../include/spinning_top.h"
 #include "../include/table.h"
-
 
 static int   WWIDTH = 512, WHEIGHT = 512;
 static Shape *cube;
@@ -18,6 +18,7 @@ static Shape *torus;
 static Node *floor_tiles;
 static Node *table;
 static Node *stool;
+static Node *spinning_top;
 
 /* la fonction d'initialisation : appelée 1 seule fois, au début */
 static void init(void)
@@ -39,7 +40,9 @@ static void init(void)
         fprintf(stderr, "Error in init_sphere() malloc\n");
         exit(EXIT_FAILURE);
     }
-    if (!init_torus(&torus))
+
+    double torus_radius = 0.2;
+    if (!init_torus(&torus, SPHERE_R * torus_radius, SPHERE_R * (1 + torus_radius)))
     {
         fprintf(stderr, "Error in init_torus() malloc\n");
         exit(EXIT_FAILURE);
@@ -64,8 +67,11 @@ static void init(void)
         exit(EXIT_FAILURE);
     }
 
-
-
+    if (!init_spinning_top(&spinning_top, cylinder, sphere, torus))
+    {
+        fprintf(stderr, "Error in init_table() malloc\n");
+        exit(EXIT_FAILURE);
+    }
     /* ----------------------------------------------- */
 }
 
@@ -90,8 +96,6 @@ static void draw_stool_on_desk(void)
 
 static void draw_desks_and_stools(void)
 {
-    glScaled(0.7, 0.7, 0.7);
-
     glPushMatrix();
     glTranslatef(-floor_length, -floor_length, 0.);
     draw_node(floor_tiles);
@@ -109,9 +113,16 @@ static void draw_desks_and_stools(void)
     glPopMatrix();
 
     glPushMatrix();
-    glRotatef(130, 0., 0., 1.);    /* une rotation autour de l'axe 'x' */
+    glRotatef(130, 0., 0., 1.);
     glTranslatef(-floor_length * 0.7, 0, 0.);
     draw_node(table);
+    glPopMatrix();
+}
+
+static void draw_spinning_top_on_stele()
+{
+    glPushMatrix();
+    draw_node(spinning_top);
     glPopMatrix();
 }
 
@@ -119,7 +130,10 @@ static void draw_desks_and_stools(void)
 static void draw(void)
 {
     glPointSize(3);
-    draw_desks_and_stools();
+    glScaled(0.7, 0.7, 0.7);
+//    draw_desks_and_stools();
+    draw_spinning_top_on_stele();
+
 }
 
 /* la fonction d'animation (facultatif) */

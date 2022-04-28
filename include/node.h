@@ -4,6 +4,9 @@
 #include <g3x.h>
 #include "shape.h"
 
+static G3Xcolor red   = { 1.00, 0.00, 0.00, 0.00 };
+static G3Xcolor green = { 0.00, 1.00, 0.00, 0.00 };
+static G3Xcolor blue  = { 0.00, 0.00, 1.00, 0.00 };
 
 static G3Xcolor dark_yellow = { 71.0 / 255.0, 69.0 / 255.0, 11.0 / 255.0, .0 };
 static G3Xcolor light_brown = { 71.0 / 255.0, 40.0 / 255.0, 11.0 / 255.0, .0 };
