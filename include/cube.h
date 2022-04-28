@@ -4,7 +4,7 @@
 #include <g3x.h>
 #include "shape.h"
 
-static double CUBE_W = 2.0; // Cube side length
+static double const CUBE_W = 2.0; // Cube side length
 
 void draw_points_cube(Shape *shape, G3Xvector scale_factor);
 
