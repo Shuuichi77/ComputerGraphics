@@ -54,19 +54,36 @@ int add_child(SceneTree *father)
     return addChildWithShapeAndColor(father, NULL, (*father)->col);
 }
 
+int addChildWithShape(SceneTree *father, Shape *shape)
+{
+    assert(father != NULL);
+    return addChildWithShapeAndColor(father, shape, (*father)->col);
+}
+
 int addChildWithShapeAndColor(SceneTree *father, Shape *shape, G3Xcolor col)
 {
     assert(father != NULL);
 
-    if (NULL == ((*father)->down  = (Node *) malloc(sizeof(Node)))) { return 0; }
-    if (shape != NULL) { (*father)->down->instance = shape; }
-    (*father)->down->Md           = (*father)->Md;
-    (*father)->down->col          = col;
-    (*father)->down->scale_factor = (*father)->scale_factor;
-    (*father)->down->mat[0] = (*father)->mat[0];
-    (*father)->down->mat[1] = (*father)->mat[1];
-    (*father)->down->mat[2] = (*father)->mat[2];
-    (*father)->down->mat[3] = (*father)->mat[3];
+    SceneTree child;
+    if (NULL == (*father)->down)
+    {
+        child = (*father)->down = (Node *) malloc(sizeof(Node));
+        if (NULL == child) { return 0; }
+    }
+    else
+    {
+        SceneTree tmp = (*father)->down;
+        while (NULL != tmp->next) { tmp = tmp->next; }
+        child = tmp->next = (Node *) malloc(sizeof(Node));
+        if (NULL == child) { return 0; }
+    }
+
+    if (shape != NULL) { child->instance = shape; }
+    child->Md           = (*father)->Md;
+    child->col          = col;
+    child->scale_factor = (*father)->scale_factor;
+
+    memcpy(child->mat, (*father)->mat, sizeof(float) * 4);
 
     return 1;
 }
@@ -74,19 +91,13 @@ int addChildWithShapeAndColor(SceneTree *father, Shape *shape, G3Xcolor col)
 int add_next(SceneTree *node, SceneTree *father)
 {
     assert(node != NULL);
+    return addNextWithShapeAndColor(node, father, NULL, (*father)->col);
+}
 
-    if (NULL == ((*node)->next = (Node *) malloc(sizeof(Node)))) { return 0; }
-    if (father == NULL) { return 1; }
-
-    (*node)->next->Md  = (*father)->Md;
-    (*node)->next->col = (*father)->col;
-    (*node)->next->mat[0] = (*father)->mat[0];
-    (*node)->next->mat[1] = (*father)->mat[1];
-    (*node)->next->mat[2] = (*father)->mat[2];
-    (*node)->next->mat[3] = (*father)->mat[3];
-    (*node)->next->scale_factor = (*father)->scale_factor;
-
-    return 1;
+int addNextWithShape(SceneTree *node, SceneTree *father, Shape *shape)
+{
+    assert(node != NULL);
+    return addNextWithShapeAndColor(node, father, shape, (*father)->col);
 }
 
 int addNextWithShapeAndColor(SceneTree *node, SceneTree *father, Shape *shape, G3Xcolor col)
@@ -99,25 +110,44 @@ int addNextWithShapeAndColor(SceneTree *node, SceneTree *father, Shape *shape, G
 
     (*node)->next->Md  = (*father)->Md;
     (*node)->next->col = col;
-    (*node)->next->mat[0] = (*father)->mat[0];
-    (*node)->next->mat[1] = (*father)->mat[1];
-    (*node)->next->mat[2] = (*father)->mat[2];
-    (*node)->next->mat[3] = (*father)->mat[3];
+    memcpy((*node)->next->mat, (*father)->mat, sizeof(float) * 4);
     (*node)->next->scale_factor = (*father)->scale_factor;
 
     return 1;
 }
 
-void draw_node(Node *node)
+double dist3D(G3Xvector v1, G3Xvector v2)
+{
+    return sqrt(pow((v2.x - v1.x), 2) + pow((v2.y - v1.y), 2) + pow((v2.z - v1.z), 2));
+}
+
+
+double max(double a, double b)
+{
+    return a > b ? a : b;
+}
+
+void draw_node(Node *node, G3Xvector pos, G3Xhmat mat)
 {
     if (node == NULL) { return; }
 
     g3x_Material(node->col, node->mat[0], node->mat[1], node->mat[2], node->mat[3], 0.);
     glPushMatrix();
     glMultMatrixd(node->Md.m);
-    if (node->instance != NULL) { node->instance->draw_faces(node->instance, node->scale_factor); }
+    if (node->instance != NULL)
+    {
+        double dcam = dist3D((G3Xvector) { node->Md.m[12] + mat.m[12],
+                                           node->Md.m[13] + mat.m[13],
+                                           node->Md.m[14] + mat.m[14] }, pos);
+
+        double scale_balanced = (node->scale_factor.x * mat.m[0] +
+                                 node->scale_factor.y * mat.m[5] +
+                                 node->scale_factor.z * mat.m[10]) / 3.;
+
+        node->instance->draw_faces(node->instance, node->scale_factor, max(1., (1. / scale_balanced) * (dcam * 0.15)));
+    }
     glPopMatrix();
 
-    draw_node(node->next);
-    draw_node(node->down);
+    draw_node(node->next, pos, mat);
+    draw_node(node->down, pos, mat);
 }

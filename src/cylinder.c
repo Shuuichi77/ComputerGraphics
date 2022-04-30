@@ -9,9 +9,10 @@ void draw_points_cylinder(Shape *shape, G3Xvector scale_factor)
     glEnd();
 }
 
-void draw_faces_cylinder(Shape *shape, G3Xvector scale_factor)
+void draw_faces_cylinder(Shape *shape, G3Xvector scale_factor, double step)
 {
     glScalef(scale_factor.x, scale_factor.y, scale_factor.z);
+
     glBegin(GL_TRIANGLES);
     for (int i = 0; i < shape->n1; i += step)
     {
@@ -93,42 +94,40 @@ int init_cylinder(ShapePtr *cylinder)
     {
         for (int j = 0; j < (*cylinder)->n2; j++)
         {
-            (*cylinder)->norm[i * ((*cylinder)->n1 + (*cylinder)->n3 * 2) + j] = (G3Xpoint) {
-                    CYLINDER_R * cos(i * theta),
-                    CYLINDER_R * sin(i * theta),
-                    (j * t) - (CYLINDER_H / 2.) };
+            (*cylinder)->norm[i * ((*cylinder)->n1 + (*cylinder)->n3 * 2) + j] =
+                    (G3Xpoint) { CYLINDER_R * cos(i * theta),
+                                 CYLINDER_R * sin(i * theta),
+                                 (j * t) - (CYLINDER_H / 2.) };
 
-            (*cylinder)->vrtx[i * ((*cylinder)->n1 + (*cylinder)->n3 * 2) + j] = (G3Xpoint) {
-                    CYLINDER_R * cos(i * theta),
-                    CYLINDER_R * sin(i * theta),
-                    (j * t) - (CYLINDER_H / 2.) };
+            (*cylinder)->vrtx[i * ((*cylinder)->n1 + (*cylinder)->n3 * 2) + j] =
+                    (G3Xpoint) { CYLINDER_R * cos(i * theta),
+                                 CYLINDER_R * sin(i * theta),
+                                 (j * t) - (CYLINDER_H / 2.) };
         }
         for (int k = 0; k < (*cylinder)->n3; k++)
         {
-            (*cylinder)->norm[i * ((*cylinder)->n1 + (*cylinder)->n2) + (*cylinder)->n2 + k] = (G3Xpoint) {
-                    (k * r) * cos(i * theta),
-                    (k * r) * sin(i * theta),
-                    CYLINDER_H / 2. };
+            (*cylinder)->norm[i * ((*cylinder)->n1 + (*cylinder)->n2) + (*cylinder)->n2 + k] =
+                    (G3Xpoint) { (k * r) * cos(i * theta),
+                                 (k * r) * sin(i * theta),
+                                 CYLINDER_H / 2. };
 
-            (*cylinder)->vrtx[i * ((*cylinder)->n1 + (*cylinder)->n2) + (*cylinder)->n2 + k] = (G3Xpoint) {
-                    (k * r) * cos(i * theta),
-                    (k * r) * sin(i * theta),
-                    CYLINDER_H / 2. };
+            (*cylinder)->vrtx[i * ((*cylinder)->n1 + (*cylinder)->n2) + (*cylinder)->n2 + k] =
+                    (G3Xpoint) { (k * r) * cos(i * theta),
+                                 (k * r) * sin(i * theta),
+                                 CYLINDER_H / 2. };
         }
 
         for (int l = 0; l < (*cylinder)->n3; l++)
         {
-            (*cylinder)->norm[i * ((*cylinder)->n1 + (*cylinder)->n2) + (*cylinder)->n2 + (*cylinder)->n3 +
-                              l] = (G3Xpoint) {
-                    (l * r) * cos(i * theta),
-                    (l * r) * sin(i * theta),
-                    -CYLINDER_H / 2. };
+            (*cylinder)->norm[i * ((*cylinder)->n1 + (*cylinder)->n2) + (*cylinder)->n2 + (*cylinder)->n3 + l] =
+                    (G3Xpoint) { (l * r) * cos(i * theta),
+                                 (l * r) * sin(i * theta),
+                                 -CYLINDER_H / 2. };
 
-            (*cylinder)->vrtx[i * ((*cylinder)->n1 + (*cylinder)->n2) + (*cylinder)->n2 + (*cylinder)->n3 +
-                              l] = (G3Xpoint) {
-                    (l * r) * cos(i * theta),
-                    (l * r) * sin(i * theta),
-                    -CYLINDER_H / 2. };
+            (*cylinder)->vrtx[i * ((*cylinder)->n1 + (*cylinder)->n2) + (*cylinder)->n2 + (*cylinder)->n3 + l] =
+                    (G3Xpoint) { (l * r) * cos(i * theta),
+                                 (l * r) * sin(i * theta),
+                                 -CYLINDER_H / 2. };
         }
     }
 

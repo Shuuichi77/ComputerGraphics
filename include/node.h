@@ -40,12 +40,16 @@ void rotate_z(SceneTree *node, double dz);
 
 int add_child(SceneTree *father);
 
+int addChildWithShape(SceneTree *father, Shape *shape);
+
 int addChildWithShapeAndColor(SceneTree *father, Shape *shape, G3Xcolor col);
 
 int add_next(SceneTree *node, SceneTree *father);
 
+int addNextWithShape(SceneTree *node, SceneTree *father, Shape *shape);
+
 int addNextWithShapeAndColor(SceneTree *node, SceneTree *father, Shape *shape, G3Xcolor col);
 
-void draw_node(Node *node);
+void draw_node(Node *node, G3Xvector pos, G3Xhmat mat);
 
 #endif

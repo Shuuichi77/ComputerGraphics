@@ -10,7 +10,7 @@ void draw_points_cube(Shape *shape, G3Xvector scale_factor)
 }
 
 
-void draw_faces_cube(Shape *shape, G3Xvector scale_factor)
+void draw_faces_cube(Shape *shape, G3Xvector scale_factor, double step)
 {
     glScalef(scale_factor.x, scale_factor.y, scale_factor.z);
     glBegin(GL_TRIANGLES);

@@ -7,11 +7,11 @@
 #include "torus.h"
 #include "node.h"
 
-static double const STICK_X = 0.04;
+static double const STICK_X = 0.04 / 3.;
 static double const STICK_Y = STICK_X;
-static double const STICK_Z = 1;
+static double const STICK_Z = 1 / 3.;
 
-static double const GLOBE_X = 0.35;
+static double const GLOBE_X = 0.10;
 static double const GLOBE_Y = GLOBE_X;
 static double const GLOBE_Z = GLOBE_X;
 

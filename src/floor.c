@@ -1,44 +1,12 @@
 #include "../include/floor.h"
 
-int init_first_pair(SceneTree *father, Shape *cube, int nb_pair)
-{
-    if (!add_child(father)) { return 0; }
-    (*father)->down->instance = cube;
-    (*father)->down->col      = dark_grey;
-    translate(&(*father)->down, (nb_pair % 2) ? 0 : floor_length, floor_length * (nb_pair - 1), -floor_height);
-
-    if (!add_next(&(*father)->down, father)) { return 0; }
-    (*father)->down->next->instance = cube;
-    (*father)->down->next->col      = light_grey;
-    translate(&(*father)->down->next, (nb_pair % 2) ? floor_length : 0, floor_length * (nb_pair - 1), -floor_height);
-
-    return 1;
-}
-
-int init_next_pairs(SceneTree *father, SceneTree *next, Shape *cube, int nb_pair)
-{
-    if (nb_pair == 0) { return 1; }
-
-    if (!add_next(next, father)) { return 0; }
-    (*next)->next->instance = cube;
-    (*next)->next->col      = dark_grey;
-    translate(&(*next)->next, (nb_pair % 2) ? 0 : floor_length, floor_length * (nb_pair - 1), -floor_height);
-
-    if (!add_next(&(*next)->next, father)) { return 0; }
-    (*next)->next->next->instance = cube;
-    (*next)->next->next->col      = light_grey;
-    translate(&(*next)->next->next, (nb_pair % 2) ? floor_length : 0, floor_length * (nb_pair - 1), -floor_height);
-
-    return init_next_pairs(father, &(*next)->next->next, cube, nb_pair - 1);
-}
-
 int init_tiles(SceneTree *father, Shape *cube)
 {
     if (!addChildWithShapeAndColor(father, cube, dark_grey)) { return 0; }
-    translate(&(*father)->down, 0, floor_length, -floor_height);
+    translate(&(*father)->down, 0, floor_width, -floor_height);
 
     if (!addNextWithShapeAndColor(&(*father)->down, father, cube, light_grey)) { return 0; }
-    translate(&(*father)->down->next, floor_length, floor_length, -floor_height);
+    translate(&(*father)->down->next, floor_length, floor_width, -floor_height);
 
     if (!addNextWithShapeAndColor(&(*father)->down->next, father, cube, dark_grey)) { return 0; }
     translate(&(*father)->down->next->next, floor_length, 0, -floor_height);

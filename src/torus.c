@@ -9,7 +9,7 @@ void draw_points_torus(Shape *shape, G3Xvector scale_factor)
     glEnd();
 }
 
-void draw_faces_torus(Shape *shape, G3Xvector scale_factor)
+void draw_faces_torus(Shape *shape, G3Xvector scale_factor, double step)
 {
     glScalef(scale_factor.x, scale_factor.y, scale_factor.z);
     glBegin(GL_TRIANGLES);
@@ -31,12 +31,15 @@ void draw_faces_torus(Shape *shape, G3Xvector scale_factor)
     glEnd();
 }
 
-int init_torus(ShapePtr *torus, double torus_radius, double total_radius)
+int init_torus(ShapePtr *torus)
 {
     if (NULL == ((*torus) = (Shape *) malloc(sizeof(Shape))))
     {
         return 0;
     }
+
+//    (*torus)->n1 = 5 * NBM * torus_radius * total_radius;
+//    (*torus)->n2 = 5 * NBP * torus_radius * total_radius;
 
     (*torus)->n1 = NBM;
     (*torus)->n2 = NBP;
@@ -54,13 +57,13 @@ int init_torus(ShapePtr *torus, double torus_radius, double total_radius)
         for (int j = 0; j < (*torus)->n2; j++)
         {
             (*torus)->norm[i * (*torus)->n1 + j] = (G3Xpoint) {
-                    cos(i * theta) * (total_radius + torus_radius * cos(j * phi)),
-                    -sin(i * theta) * (total_radius + torus_radius * cos(j * phi)),
-                    torus_radius * sin(j * phi) };
+                    cos(i * theta) * (WHOLE_TORUS_RADIUS + TORUS_R * cos(j * phi)),
+                    -sin(i * theta) * (WHOLE_TORUS_RADIUS + TORUS_R * cos(j * phi)),
+                    TORUS_R * sin(j * phi) };
             (*torus)->vrtx[i * (*torus)->n1 + j] = (G3Xpoint) {
-                    cos(i * theta) * (total_radius + torus_radius * cos(j * phi)),
-                    -sin(i * theta) * (total_radius + torus_radius * cos(j * phi)),
-                    torus_radius * sin(j * phi) };
+                    cos(i * theta) * (WHOLE_TORUS_RADIUS + TORUS_R * cos(j * phi)),
+                    -sin(i * theta) * (WHOLE_TORUS_RADIUS + TORUS_R * cos(j * phi)),
+                    TORUS_R * sin(j * phi) };
         }
     }
 

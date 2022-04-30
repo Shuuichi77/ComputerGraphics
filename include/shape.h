@@ -11,8 +11,6 @@
 #define NBP 100                   // Nombre de parallèles (lignes horizontales)
 #define NBC 50                    // Nombre de cercles sur les bases (pour le cylindre)
 
-extern double step;
-
 typedef struct _shape_
 {
     int       n1, n2, n3;   /* Valeurs d’échantillonnage max - la plupart du temps 2 suffisent */
@@ -20,7 +18,7 @@ typedef struct _shape_
     G3Xvector *norm;        /* Tableau des normales - spécifique d’une forme */
     /* Méthode d’affichage - spécifique d’une forme */
     void (*draw_points)(struct _shape_ *, G3Xvector scale_factor); /* Mode GL_POINTS */
-    void (*draw_faces )(struct _shape_ *, G3Xvector scale_factor); /* Mode GL_TRIANGLES ou GL_QUADS */
+    void (*draw_faces )(struct _shape_ *, G3Xvector scale_factor, double step); /* Mode GL_TRIANGLES ou GL_QUADS */
 } Shape, *ShapePtr;
 
 /**
