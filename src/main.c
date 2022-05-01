@@ -1,6 +1,7 @@
 #include <g3x.h>
 #include <time.h>
 
+#include "../include/cone.h"
 #include "../include/cube.h"
 #include "../include/cylinder.h"
 #include "../include/sphere.h"
@@ -16,7 +17,9 @@ static int const NB_QUAD_STELE = 10; // 10 * 4 = 40 steles (20 per row)
 static int       *random_radius;
 static double    g_step        = 1.0;
 
-static int   WWIDTH = 512, WHEIGHT = 512;
+static int WWIDTH = 512, WHEIGHT = 512;
+
+static Shape *cone;
 static Shape *cube;
 static Shape *cylinder;
 static Shape *sphere;
@@ -46,6 +49,11 @@ static void init(void)
 
     /* Call each init function only 1 time : we'll then use an instance of each shape */
     /* --------------------------------------------------------------------------- */
+    if (NULL == (cone = initCone()))
+    {
+        fprintf(stderr, "Error in initCone() malloc\n");
+        exit(EXIT_FAILURE);
+    }
     if (NULL == (cube = initCube()))
     {
         fprintf(stderr, "Error in initCube() malloc\n");
@@ -112,6 +120,7 @@ static void printCameraInfo(void)
 
 static void ctrl(void)
 {
+    g3x_CreateScrollv_d("g_step", &g_step, 1, 10, 1, "g_step");
     g3x_SetKeyAction('c', printCameraInfo, "pos./dir. de la camera => terminal");
     g3x_CreateScrollv_d("dist", &(g3x_GetCamera()->dist), 1, 10, 1, "dist");
 }
@@ -250,9 +259,33 @@ static void drawStelesScene()
     glPopMatrix();
 }
 
+static void drawAllShapes(void)
+{
+    glPointSize(3);
+    glScaled(0.3, 0.3, 0.3);
+    g3x_Material(G3Xr, .2, .6, .9, 1, 1);
+
+    glTranslatef(-6., 0., 0.);
+    cone->draw_faces(cone, (G3Xvector) { 1, 1, 1 }, g_step);
+
+    glTranslatef(3., 0., 0.);
+    cylinder->draw_faces(cylinder, (G3Xvector) { 1, 1, 1 }, g_step);
+
+    glTranslatef(3., 0., 0.);
+    sphere->draw_faces(sphere, (G3Xvector) { 1, 1, 1 }, g_step);
+
+    glTranslatef(3., 0., 0.);
+    torus->draw_faces(torus, (G3Xvector) { 1, 1, 1 }, g_step);
+
+    glTranslatef(2., -1., -1.);
+    cube->draw_faces(cube, (G3Xvector) { 1, 1, 1 }, g_step);
+
+}
+
 static void quit(void)
 {
     fprintf(stdout, "Freeing shapes & nodes\n");
+    freeShape(cone);
     freeShape(cube);
     freeShape(cylinder);
     freeShape(sphere);
@@ -275,8 +308,8 @@ static void usage()
 
 int main(int argc, char **argv)
 {
-    if (argc > 2 ||
-        (argc == 2 && strcmp(argv[1], "tables") && strcmp(argv[1], "steles")))
+    if (argc > 3 ||
+        (argc == 3 && strcmp(argv[1], "tables") && strcmp(argv[1], "steles") && strcmp(argv[1], "shapes")))
     {
         usage();
         return 0;
@@ -291,11 +324,22 @@ int main(int argc, char **argv)
         case 1:g3x_SetDrawFunction(drawStelesScene);
             break;
 
-        case 2: g3x_SetDrawFunction(!strcmp(argv[1], "steles") ? drawStelesScene : drawTablesStoolsScene);
+        case 2:
+            if (!strcmp(argv[1], "steles"))
+            {
+                g3x_SetDrawFunction(drawStelesScene);
+            }
+            else if (!strcmp(argv[1], "shapes"))
+            {
+                g3x_SetDrawFunction(drawAllShapes);
+            }
+            else
+            {
+                g3x_SetDrawFunction(drawTablesStoolsScene);
+            }
             break;
     }
 
     g3x_SetExitFunction(quit);
-
     return g3x_MainStart();
 }

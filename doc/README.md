@@ -1,14 +1,19 @@
-# Synthèse d’Images Master 1
+# Synthèse d’Images - Arbres de scènes en résolution adaptative
 
-## Arbres de scènes en résolution adaptative
+### Adrien ROUMEGOUS - Johnson VILAYVANH
 
-### Adrien ROUMEGOUS
+### Master 1 Informatique - Université Gustave Eiffel
 
-### Johnson VILAYVANH
+### 2021 - 2022
+
+##### Introduction
+
+Ce projet a été réalisé dans le cadre du cursus master 1 Informatique à l'université Gustave Eiffel.\
+Il consiste en la modéalisation de forme (Cube, Sphre, Cylindre, Cône)
 
 ##### Commandes
 
-TODO
+Le
 
 ##### Options
 
