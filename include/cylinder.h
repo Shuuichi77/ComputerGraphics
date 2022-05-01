@@ -7,10 +7,6 @@
 static double const CYLINDER_H = 2;   // Cylinder height length
 static double const CYLINDER_R = 1;   // Cylinder radius length
 
-void draw_points_cylinder(Shape *shape, G3Xvector scale_factor);
-
-void draw_faces_cylinder(Shape *shape, G3Xvector scale_factor, double step);
-
-int init_cylinder(ShapePtr *cylinder);
+ShapePtr initCylinder();
 
 #endif

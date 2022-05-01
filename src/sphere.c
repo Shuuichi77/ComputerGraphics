@@ -1,69 +1,77 @@
 #include "../include/sphere.h"
 
-void draw_points_sphere(Shape *shape, G3Xvector scale_factor)
-{
-    glBegin(GL_TRIANGLES);
+static int offset;
 
-    // TODO
+static void drawPointsSphere(Shape *shape, G3Xvector scale_factor, double step)
+{
+    glScaled(scale_factor.x, scale_factor.y, scale_factor.z);
+    glBegin(GL_POINTS);
+
+    for (int i = 0; i < shape->n1 * shape->n2; i += step)
+    {
+        g3x_Vertex3dv(shape->vrtx[i]);
+    }
 
     glEnd();
 }
 
-void draw_faces_sphere(Shape *shape, G3Xvector scale_factor, double step)
+static void drawFacesSphere(Shape *shape, G3Xvector scale_factor, double step)
 {
-    glScalef(scale_factor.x, scale_factor.y, scale_factor.z);
+    glScaled(scale_factor.x, scale_factor.y, scale_factor.z);
     glBegin(GL_TRIANGLES);
     for (int i = 0; i < shape->n1; i += step)
     {
         for (int j = 0; j < shape->n2 - 1; j += step)
         {
             // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * shape->n1 + min(j + step, shape->n2 - 1));
-            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * shape->n1 + min(j + step, shape->n2 - 1));
-            NormalVertex3dv(*shape, i * shape->n1 + j);
-
-            // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * shape->n1 + j);
-            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * shape->n1 + min(j + step, shape->n2 - 1));
-            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * shape->n1 + j);
+            drawTriangleSwSeNw(shape, step, i, j, shape->n1, shape->n2, offset, 0);
+            drawTriangleNwSeNe(shape, step, i, j, shape->n1, shape->n2, offset, 0);
         }
     }
     glEnd();
 }
 
-
-int init_sphere(ShapePtr *sphere)
+ShapePtr initSphere()
 {
-    if (NULL == ((*sphere) = (Shape *) malloc(sizeof(Shape))))
+    ShapePtr sphere = (Shape *) malloc(sizeof(Shape));
+    if (sphere == NULL) { return NULL; }
+
+    sphere->n1 = NBM;
+    sphere->n2 = NBP;
+    unsigned int vertex_number = sphere->n1 * sphere->n2;
+    if (NULL == (sphere->vrtx = (G3Xpoint *) malloc(sizeof(G3Xpoint) * vertex_number)))
     {
-        return 0;
+        free(sphere);
+        return NULL;
     }
 
-    (*sphere)->n1 = NBM;
-    (*sphere)->n2 = NBP;
-
-    double       theta         = 2 * PI / (*sphere)->n1;
-    double       phi           = PI / ((*sphere)->n2 - 1);
-    unsigned int vertex_number = (*sphere)->n1 * (*sphere)->n2;
-    (*sphere)->vrtx        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
-    (*sphere)->norm        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
-    (*sphere)->draw_points = draw_points_sphere;
-    (*sphere)->draw_faces  = draw_faces_sphere;
-
-    for (int i = 0; i < (*sphere)->n1; i++)
+    if (NULL == (sphere->norm = (G3Xvector *) malloc(sizeof(G3Xvector) * vertex_number)))
     {
-        for (int j = 0; j < (*sphere)->n2; j++)
-        {
-            (*sphere)->norm[i * (*sphere)->n1 + j] = (G3Xpoint) { SPHERE_R * cos(i * theta) * sin(j * phi),
-                                                                  SPHERE_R * sin(i * theta) * sin(j * phi),
-                                                                  SPHERE_R * cos(j * phi) };
+        free(sphere->vrtx);
+        free(sphere);
+        return NULL;
+    }
 
-            (*sphere)->vrtx[i * (*sphere)->n1 + j] = (G3Xpoint) { SPHERE_R * cos(i * theta) * sin(j * phi),
-                                                                  SPHERE_R * sin(i * theta) * sin(j * phi),
-                                                                  SPHERE_R * cos(j * phi) };
+    double theta = 2 * PI / sphere->n1;
+    double phi   = PI / (sphere->n2 - 1);
+    sphere->draw_points = drawPointsSphere;
+    sphere->draw_faces  = drawFacesSphere;
+    offset = sphere->n1;
+
+    for (int i = 0; i < sphere->n1; i++)
+    {
+        for (int j = 0; j < sphere->n2; j++)
+        {
+            sphere->norm[i * offset + j] = (G3Xvector) { SPHERE_R * cos(i * theta) * sin(j * phi),
+                                                         SPHERE_R * sin(i * theta) * sin(j * phi),
+                                                         SPHERE_R * cos(j * phi) };
+
+            sphere->vrtx[i * offset + j] = (G3Xpoint) { SPHERE_R * cos(i * theta) * sin(j * phi),
+                                                        SPHERE_R * sin(i * theta) * sin(j * phi),
+                                                        SPHERE_R * cos(j * phi) };
         }
     }
 
-    return 1;
+    return sphere;
 }
 

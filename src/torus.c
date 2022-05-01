@@ -1,71 +1,77 @@
 #include "../include/torus.h"
 
-void draw_points_torus(Shape *shape, G3Xvector scale_factor)
-{
-    glBegin(GL_TRIANGLES);
+static int offset;
 
-    // TODO
+static void drawPointsTorus(Shape *shape, G3Xvector scale_factor, double step)
+{
+    glScaled(scale_factor.x, scale_factor.y, scale_factor.z);
+    glBegin(GL_POINTS);
+
+    for (int i = 0; i < shape->n1 * shape->n2; i += step)
+    {
+        g3x_Vertex3dv(shape->vrtx[i]);
+    }
 
     glEnd();
 }
 
-void draw_faces_torus(Shape *shape, G3Xvector scale_factor, double step)
+static void drawFacesTorus(Shape *shape, G3Xvector scale_factor, double step)
 {
-    glScalef(scale_factor.x, scale_factor.y, scale_factor.z);
+    glScaled(scale_factor.x, scale_factor.y, scale_factor.z);
     glBegin(GL_TRIANGLES);
     for (int i = 0; i < shape->n1; i += step)
     {
         for (int j = 0; j < shape->n2 - 1; j += step)
         {
-            // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * shape->n1 + min(j + step, shape->n2 - 1));
-            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * shape->n1 + min(j + step, shape->n2 - 1));
-            NormalVertex3dv(*shape, i * shape->n1 + j);
-
-            // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * shape->n1 + j);
-            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * shape->n1 + min(j + step, shape->n2 - 1));
-            NormalVertex3dv(*shape, (min(i + step, shape->n1) % shape->n1) * shape->n1 + j);
+            drawTriangleSwSeNw(shape, step, i, j, shape->n1, shape->n2, offset, 0);
+            drawTriangleNwSeNe(shape, step, i, j, shape->n1, shape->n2, offset, 0);
         }
     }
     glEnd();
 }
 
-int init_torus(ShapePtr *torus)
+ShapePtr initTorus()
 {
-    if (NULL == ((*torus) = (Shape *) malloc(sizeof(Shape))))
+    ShapePtr torus = (Shape *) malloc(sizeof(Shape));
+    if (torus == NULL) { return NULL; }
+
+    torus->n1 = NBM;
+    torus->n2 = NBP;
+    unsigned int vertex_number = torus->n1 * torus->n2;
+    if (NULL == (torus->vrtx = (G3Xpoint *) malloc(sizeof(G3Xpoint) * vertex_number)))
     {
-        return 0;
+        free(torus);
+        return NULL;
     }
 
-//    (*torus)->n1 = 5 * NBM * torus_radius * total_radius;
-//    (*torus)->n2 = 5 * NBP * torus_radius * total_radius;
-
-    (*torus)->n1 = NBM;
-    (*torus)->n2 = NBP;
-
-    double       theta         = 2 * PI / (*torus)->n1;
-    double       phi           = 2 * PI / ((*torus)->n2 - 1);
-    unsigned int vertex_number = (*torus)->n1 * (*torus)->n2;
-    (*torus)->vrtx        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
-    (*torus)->norm        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
-    (*torus)->draw_points = draw_points_torus;
-    (*torus)->draw_faces  = draw_faces_torus;
-
-    for (int i = 0; i < (*torus)->n1; i++)
+    if (NULL == (torus->norm = (G3Xvector *) malloc(sizeof(G3Xvector) * vertex_number)))
     {
-        for (int j = 0; j < (*torus)->n2; j++)
+        free(torus->vrtx);
+        free(torus);
+        return NULL;
+    }
+
+    torus->draw_points = drawPointsTorus;
+    torus->draw_faces  = drawFacesTorus;
+    double theta = 2 * PI / torus->n1;
+    double phi   = 2 * PI / (torus->n2 - 1);
+    offset = torus->n1;
+
+    for (int i = 0; i < torus->n1; i++)
+    {
+        for (int j = 0; j < torus->n2; j++)
         {
-            (*torus)->norm[i * (*torus)->n1 + j] = (G3Xpoint) {
-                    cos(i * theta) * (WHOLE_TORUS_RADIUS + TORUS_R * cos(j * phi)),
-                    -sin(i * theta) * (WHOLE_TORUS_RADIUS + TORUS_R * cos(j * phi)),
-                    TORUS_R * sin(j * phi) };
-            (*torus)->vrtx[i * (*torus)->n1 + j] = (G3Xpoint) {
+            torus->norm[i * offset + j] = (G3Xvector) {
+                    cos(i * theta) * cos(j * phi),
+                    -sin(i * theta) * cos(j * phi),
+                    sin(j * phi) };
+
+            torus->vrtx[i * offset + j] = (G3Xpoint) {
                     cos(i * theta) * (WHOLE_TORUS_RADIUS + TORUS_R * cos(j * phi)),
                     -sin(i * theta) * (WHOLE_TORUS_RADIUS + TORUS_R * cos(j * phi)),
                     TORUS_R * sin(j * phi) };
         }
     }
 
-    return 1;
+    return torus;
 }

@@ -14,8 +14,6 @@ static G3Xcolor grey        = { 144.0 / 255.0, 144.0 / 255.0, 144.0 / 255.0, .0 
 static G3Xcolor dark_grey   = { 105.0 / 255.0, 105.0 / 255.0, 105.0 / 255.0, .0 };
 static G3Xcolor light_grey  = { 180.0 / 255.0, 180.0 / 255.0, 180.0 / 255.0, .0 };
 
-static float default_mat[4] = { 0.25, 0.5, 0.6, 1.0 };
-
 typedef struct _node_
 {
     struct _node_ *down, *next;     /* chaînage */
@@ -24,31 +22,27 @@ typedef struct _node_
     float         mat[4];           /* 4 réels dans [0,1] : (ambi, diff, spec, shine) */
     G3Xvector     scale_factor;     /* facteurs d’échelles locaux en x, y, z */
     Shape         *instance;        /* une éventuelle instance d’objet */
-}            Node, *SceneTree;
+}               Node, *SceneTree;
+
+void applyHomothety(SceneTree *node, double hx, double hy, double hz);
+
+void applyTranslate(SceneTree *node, double tx, double ty, double tz);
+
+void applyRotateX(SceneTree *node, double dx);
+
+void applyRotateY(SceneTree *node, double dy);
+
+void applyRotateZ(SceneTree *node, double dz);
 
 SceneTree createNode();
 
-void scalef(SceneTree *node, double hx, double hy, double hz);
+void freeNode(SceneTree *node);
 
-void translate(SceneTree *node, double tx, double ty, double tz);
+SceneTree addChildWithColor(SceneTree *father, G3Xcolor col);
 
-void rotate_x(SceneTree *node, double dx);
+SceneTree addChildWithShape(SceneTree *father, Shape *shape);
 
-void rotate_y(SceneTree *node, double dy);
-
-void rotate_z(SceneTree *node, double dz);
-
-int add_child(SceneTree *father);
-
-int addChildWithShape(SceneTree *father, Shape *shape);
-
-int addChildWithShapeAndColor(SceneTree *father, Shape *shape, G3Xcolor col);
-
-int add_next(SceneTree *node, SceneTree *father);
-
-int addNextWithShape(SceneTree *node, SceneTree *father, Shape *shape);
-
-int addNextWithShapeAndColor(SceneTree *node, SceneTree *father, Shape *shape, G3Xcolor col);
+SceneTree addChildWithShapeAndColor(SceneTree *father, Shape *shape, G3Xcolor col);
 
 void draw_node(Node *node, G3Xvector pos, G3Xhmat mat);
 

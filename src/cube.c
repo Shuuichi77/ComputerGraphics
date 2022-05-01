@@ -1,281 +1,142 @@
 #include "../include/cube.h"
 
-void draw_points_cube(Shape *shape, G3Xvector scale_factor)
-{
-    glBegin(GL_TRIANGLES);
+static int offset;
+static int faces_additional_offset[6];
 
-    // TODO
+static void drawPointsCube(Shape *shape, G3Xvector scale_factor, double step)
+{
+    glScaled(scale_factor.x, scale_factor.y, scale_factor.z);
+    glBegin(GL_POINTS);
+
+    for (int i = 0; i < 6 * ((shape)->n1 + 1) * ((shape)->n1 + 1); i += step)
+    {
+        g3x_Vertex3dv(shape->vrtx[i]);
+    }
 
     glEnd();
 }
 
-
-void draw_faces_cube(Shape *shape, G3Xvector scale_factor, double step)
+static void drawFaceCube(Shape *shape, int i, double step, int face_additional_offset)
 {
-    glScalef(scale_factor.x, scale_factor.y, scale_factor.z);
+    for (int j = 0; j < shape->n1; j += step)
+    {
+        // First triangle (SW -> SE -> NW)
+        g3x_Vertex3dv(shape->vrtx[i * offset + face_additional_offset + min(j + step, shape->n1)]);
+        g3x_Vertex3dv(shape->vrtx[(min(i + step, shape->n1) % (shape->n1 + 1)) * offset +
+                                  face_additional_offset + min(j + step, shape->n1)]);
+        g3x_Vertex3dv(shape->vrtx[i * offset + face_additional_offset + j]);
+
+        // Second triangle (NW -> SE -> NE)
+        g3x_Vertex3dv(shape->vrtx[i * offset + face_additional_offset + j]);
+        g3x_Vertex3dv(shape->vrtx[(min(i + step, shape->n1) % (shape->n1 + 1)) * offset +
+                                  face_additional_offset + min(j + step, shape->n1)]);
+        g3x_Vertex3dv(shape->vrtx[(min(i + step, shape->n1) % (shape->n1 + 1)) * offset +
+                                  face_additional_offset + j]);
+    }
+}
+
+static void drawFacesCube(Shape *shape, G3Xvector scale_factor, double step)
+{
+    glScaled(scale_factor.x, scale_factor.y, scale_factor.z);
     glBegin(GL_TRIANGLES);
+
     for (int i = 0; i < shape->n1; i += step)
     {
-        // 1ère face
-        for (int j = 0; j < shape->n1; j += step)
+        for (int j = 0; j < 6; j++)
         {
-            // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 0 +
-                                    min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 0 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 0 + j);
-
-            // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 0 + j);
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 0 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 0 + j);
-        }
-
-        // 2ème face
-        for (int j = 0; j < shape->n1; j += step)
-        {
-            // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 1 +
-                                    min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 1 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 1 + j);
-
-            // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 1 + j);
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 1 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 1 + j);
-        }
-
-        // 3ème face
-        for (int j = 0; j < shape->n1; j += step)
-        {
-            // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 2 +
-                                    min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 2 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 2 + j);
-
-            // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 2 + j);
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 2 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 2 + j);
-        }
-
-        // 4ème face
-        for (int j = 0; j < shape->n1; j += step)
-        {
-            // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 3 +
-                                    min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 3 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 3 + j);
-
-            // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 3 + j);
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 3 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 3 + j);
-        }
-
-        // 5ème face
-        for (int j = 0; j < shape->n1; j += step)
-        {
-            // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 4 +
-                                    min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 4 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 4 + j);
-
-            // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 4 + j);
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 4 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 4 + j);
-        }
-
-        // 6ème face
-        for (int j = 0; j < shape->n1; j += step)
-        {
-            // Premier triangle (SW -> SE -> NW)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 5 +
-                                    min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 5 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 5 + j);
-
-            // Second triangle (NW -> SE -> NE)
-            NormalVertex3dv(*shape, i * ((shape->n1 + 1) + (shape->n1 + 1) * 5) + (shape->n1 + 1) * 5 + j);
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 5 +
-                            min(j + step, shape->n1));
-            NormalVertex3dv(*shape,
-                            (min(i + step, shape->n1) % (shape->n1 + 1)) * ((shape->n1 + 1) + (shape->n1 + 1) * 5) +
-                            (shape->n1 + 1) * 5 + j);
+            g3x_Normal3dv(shape->norm[j]);
+            drawFaceCube(shape, i, step, faces_additional_offset[j]);
         }
     }
     glEnd();
 }
 
-int init_cube(ShapePtr *cube)
+ShapePtr initCube()
 {
-    if (NULL == ((*cube) = (Shape *) malloc(sizeof(Shape))))
+    ShapePtr cube = (Shape *) malloc(sizeof(Shape));
+    if (cube == NULL) { return NULL; }
+    cube->n1 = NBM;
+    unsigned int vertex_number = 6 * (cube->n1 + 1) * (cube->n1 + 1);
+    if (NULL == (cube->vrtx = (G3Xpoint *) malloc(sizeof(G3Xpoint) * vertex_number)))
     {
-        return 0;
+        free(cube);
+        return NULL;
     }
 
-    (*cube)->n1 = NBM / 2;
+    if (NULL == (cube->norm = (G3Xvector *) malloc(sizeof(G3Xvector) * 6)))
+    {
+        free(cube->vrtx);
+        free(cube);
+        return NULL;
+    }
 
-    unsigned int vertex_number = 6 * ((*cube)->n1 + 1) * ((*cube)->n1 + 1);
-    (*cube)->vrtx        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
-    (*cube)->norm        = (G3Xpoint *) calloc(sizeof(G3Xpoint), vertex_number);
-    (*cube)->draw_points = draw_points_cube;
-    (*cube)->draw_faces  = draw_faces_cube;
+    cube->draw_faces  = drawFacesCube;
+    cube->draw_points = drawPointsCube;
+    // Every vertex on the same face have the same normal, so unlike other shapes, we'll use an array of 6 elements :
+    cube->norm[0] = (G3Xvector) { -1, 0, 0 };
+    cube->norm[1] = (G3Xvector) { 1, 0, 0 };
+    cube->norm[2] = (G3Xvector) { 0, -1, 0 };
+    cube->norm[3] = (G3Xvector) { 0, 1, 0 };
+    cube->norm[4] = (G3Xvector) { 0, 0, -1 };
+    cube->norm[5] = (G3Xvector) { 0, 0, 1 };
+    offset = (cube->n1 + 1) + (cube->n1 + 1) * 5;
 
+    for (int i = 0; i < 6; i++)
+    {
+        faces_additional_offset[i] = (cube->n1 + 1) * i;
+    }
 
-    for (int i = 0; i <= (*cube)->n1; i++)
+    for (int i = 0; i <= cube->n1; i++)
     {
         // 1ère face
-        for (int j = 0; j <= (*cube)->n1; j++)
+        for (int j = 0; j <= cube->n1; j++)
         {
-            (*cube)->norm[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 0 + j] = (G3Xpoint) { 0,
-                                                                                                                      (double) (
-                                                                                                                              i *
-                                                                                                                              2) /
-                                                                                                                      (*cube)->n1,
-                                                                                                                      (double) (
-                                                                                                                              j *
-                                                                                                                              2) /
-                                                                                                                      (*cube)->n1 };
-
-            (*cube)->vrtx[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 0 + j] = (G3Xpoint) { 0,
-                                                                                                                      (double) (
-                                                                                                                              i *
-                                                                                                                              2) /
-                                                                                                                      (*cube)->n1,
-                                                                                                                      (double) (
-                                                                                                                              j *
-                                                                                                                              2) /
-                                                                                                                      (*cube)->n1 };
+            cube->vrtx[i * offset + faces_additional_offset[0] + j] = (G3Xpoint) { 0,
+                                                                                   (double) (i * 2) / cube->n1,
+                                                                                   (double) (j * 2) / cube->n1 };
         }
 
         // 2ème face
-        for (int j = 0; j <= (*cube)->n1; j++)
+        for (int j = 0; j <= cube->n1; j++)
         {
-            (*cube)->norm[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 3 + j] = (G3Xpoint) {
-                    (double) (i * 2) / (*cube)->n1,
-                    CUBE_W,
-                    (double) (j * 2) / (*cube)->n1 };
-
-            (*cube)->vrtx[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 3 + j] = (G3Xpoint) {
-                    (double) (i * 2) / (*cube)->n1,
-                    CUBE_W,
-                    (double) (j * 2) / (*cube)->n1 };
+            cube->vrtx[i * offset + faces_additional_offset[1] + j] = (G3Xpoint) { CUBE_W,
+                                                                                   (double) (i * 2) / cube->n1,
+                                                                                   (double) (j * 2) / cube->n1 };
         }
 
         // 3ème face
-        for (int j = 0; j <= (*cube)->n1; j++)
+        for (int j = 0; j <= cube->n1; j++)
         {
-            (*cube)->norm[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 2 + j] = (G3Xpoint) {
-                    (double) (i * 2) / (*cube)->n1,
-                    0,
-                    (double) (j * 2) / (*cube)->n1 };
-
-            (*cube)->vrtx[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 2 + j] = (G3Xpoint) {
-                    (double) (i * 2) / (*cube)->n1,
-                    0,
-                    (double) (j * 2) / (*cube)->n1 };
+            cube->vrtx[i * offset + faces_additional_offset[2] + j] = (G3Xpoint) { (double) (i * 2) / cube->n1,
+                                                                                   0,
+                                                                                   (double) (j * 2) / cube->n1 };
         }
 
         // 4ème face
-        for (int j = 0; j <= (*cube)->n1; j++)
+        for (int j = 0; j <= cube->n1; j++)
         {
-            (*cube)->norm[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 1 + j] = (G3Xpoint) {
-                    CUBE_W,
-                    (double) (i *
-                              2) /
-                    (*cube)->n1,
-                    (double) (j *
-                              2) /
-                    (*cube)->n1 };
-
-            (*cube)->vrtx[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 1 + j] = (G3Xpoint) {
-                    CUBE_W,
-                    (double) (i *
-                              2) /
-                    (*cube)->n1,
-                    (double) (j *
-                              2) /
-                    (*cube)->n1 };
+            cube->vrtx[i * offset + faces_additional_offset[3] + j] = (G3Xpoint) { (double) (i * 2) / cube->n1,
+                                                                                   CUBE_W,
+                                                                                   (double) (j * 2) / cube->n1 };
         }
 
-        // 5ème face
-        for (int j = 0; j <= (*cube)->n1; j++)
-        {
-            (*cube)->norm[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 4 + j] = (G3Xpoint) {
-                    (double) (i * 2) / (*cube)->n1,
-                    (double) (j * 2) / (*cube)->n1,
-                    0 };
 
-            (*cube)->vrtx[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 4 + j] = (G3Xpoint) {
-                    (double) (i * 2) / (*cube)->n1,
-                    (double) (j * 2) / (*cube)->n1,
-                    0 };
+        // 5ème face
+        for (int j = 0; j <= cube->n1; j++)
+        {
+            cube->vrtx[i * offset + faces_additional_offset[4] + j] = (G3Xpoint) { (double) (i * 2) / cube->n1,
+                                                                                   (double) (j * 2) / cube->n1,
+                                                                                   0 };
         }
 
         // 6ème face
-        for (int j = 0; j <= (*cube)->n1; j++)
+        for (int j = 0; j <= cube->n1; j++)
         {
-            (*cube)->norm[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 5 + j] = (G3Xpoint) {
-                    (double) (i * 2) / (*cube)->n1,
-                    (double) (j * 2) / (*cube)->n1,
-                    CUBE_W };
-            (*cube)->vrtx[i * (((*cube)->n1 + 1) + ((*cube)->n1 + 1) * 5) + ((*cube)->n1 + 1) * 5 + j] = (G3Xpoint) {
-                    (double) (i * 2) / (*cube)->n1,
-                    (double) (j * 2) / (*cube)->n1,
-                    CUBE_W };
+            cube->vrtx[i * offset + faces_additional_offset[5] + j] = (G3Xpoint) { (double) (i * 2) / cube->n1,
+                                                                                   (double) (j * 2) / cube->n1,
+                                                                                   CUBE_W };
         }
     }
 
-    return 1;
+    return cube;
 }

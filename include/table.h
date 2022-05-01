@@ -6,17 +6,16 @@
 #include "cylinder.h"
 #include "node.h"
 
-static double const DESK_X = 0.75;
-static double const DESK_Y = 0.5;
-static double const DESK_Z = 0.1;
-static double const LEG_Z  = 0.5;
+extern double const DESK_X;
+extern double const DESK_Y;
+extern double const DESK_Z;
+extern double const LEG_Z;
 
-static double desk_length = DESK_X * CUBE_W;
-static double desk_width  = DESK_Y * CUBE_W;
-static double desk_height = DESK_Z * CUBE_W;
-static double leg_height  = LEG_Z * CYLINDER_H;
+extern double const desk_length;
+extern double const desk_width;
+extern double const desk_height;
+extern double const leg_height;
 
-
-int init_table(SceneTree *table, Shape *cube, Shape *cylinder);
+SceneTree initTable(Shape *cube, Shape *cylinder);
 
 #endif

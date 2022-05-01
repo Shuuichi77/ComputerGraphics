@@ -1,59 +1,74 @@
 #include "../include/stool.h"
 
-int init_stool_leg(SceneTree *father, SceneTree *next, Shape *cube, int leg_num)
+double const STOOL_X     = 0.5;
+double const STOOL_Y     = STOOL_X;
+double const STOOL_Z     = 0.1;
+double const STOOL_LEG_Z = 0.4;
+
+double const stool_length = STOOL_X * CYLINDER_R;
+double const stool_width  = STOOL_Y * CYLINDER_R;
+double const stool_height = STOOL_Z * CYLINDER_R;
+
+double const stool_leg_height = STOOL_LEG_Z * CUBE_W;
+double const stool_leg_width  = (stool_length + stool_width) * 0.05;
+
+static int initStoolLeg(SceneTree *legs, Shape *cube, int leg_num)
 {
     if (leg_num == 4) { return 1; }
 
-    if (leg_num == 0)
+    SceneTree leg = addChildWithShape(legs, cube);
+    if (leg == NULL) { return 0; }
+
+    switch (leg_num)
     {
-        if (!add_child(father)) { return 0; }
-        (*father)->down->instance = cube;
-        translate(&(*father)->down, stool_length * 0.5, stool_width * 0.5, 0);
-        return init_stool_leg(father, &(*father)->down, cube, leg_num + 1);
+        case 0:applyTranslate(&leg, stool_length * 0.5, stool_width * 0.5, 0);
+            break;
+        case 1:applyTranslate(&leg, stool_length * 0.5, -stool_length * 0.5, 0);
+            break;
+        case 2:applyTranslate(&leg, -stool_length * 0.5, stool_length * 0.5, 0);
+            break;
+        case 3:applyTranslate(&leg, -stool_length * 0.5, -stool_length * 0.5, 0);
+            break;
     }
-    else
-    {
-        if (!add_next(next, father)) { return 0; }
-        (*next)->next->instance = cube;
-        if (leg_num == 1) { translate(&(*next)->next, stool_length * 0.5, -stool_length * 0.5, 0); }
-        else if (leg_num == 2) { translate(&(*next)->next, -stool_length * 0.5, stool_length * 0.5, 0); }
-        else if (leg_num == 3) { translate(&(*next)->next, -stool_length * 0.5, -stool_length * 0.5, 0); }
-        return init_stool_leg(father, &(*next)->next, cube, leg_num + 1);
-    }
+
+    return initStoolLeg(legs, cube, leg_num + 1);
 }
 
-
-int init_stool_legs(SceneTree *stool, SceneTree *desk, Shape *cylinder)
+static int initStoolLegs(SceneTree *stool, Shape *cube)
 {
-    if (!add_next(desk, stool)) { return 0; }
+    SceneTree stoolLegs = addChildWithColor(stool, dark_yellow);
 
-    double leg_width = (stool_length + stool_width) * 0.05;
-    (*desk)->next->col          = dark_yellow;
-    (*desk)->next->scale_factor = (G3Xvector) { leg_width,
-                                                leg_width,
-                                                STOOL_LEG_Z };
-    translate(&(*desk)->next, -leg_width, -leg_width, 0.);
-    return init_stool_leg(&(*desk)->next, NULL, cylinder, 0);
+    if (stoolLegs == NULL) { return 0; }
+    stoolLegs->scale_factor = (G3Xvector) { stool_leg_width,
+                                            stool_leg_width,
+                                            STOOL_LEG_Z };
+    applyTranslate(&stoolLegs, -stool_leg_width, -stool_leg_width, 0.);
+    return initStoolLeg(&stoolLegs, cube, 0);
 }
 
-int init_stool_desk(SceneTree *stool, Shape *cylinder)
+static int initStoolDesk(SceneTree *stool, Shape *cylinder)
 {
-    if (!add_child(stool)) { return 0; }
-    (*stool)->down->instance     = cylinder;
-    (*stool)->down->col          = dark_brown;
-    (*stool)->down->scale_factor = (G3Xvector) { STOOL_X, STOOL_Y, STOOL_Z };
-    translate(&(*stool)->down, 0, 0, stool_leg_height + stool_height);
+    SceneTree stoolDesk = addChildWithShapeAndColor(stool, cylinder, dark_brown);
+
+    if (stoolDesk == NULL) { return 0; }
+    stoolDesk->scale_factor = (G3Xvector) { STOOL_X, STOOL_Y, STOOL_Z };
+    applyTranslate(&stoolDesk, 0, 0, stool_leg_height + stool_height);
 
     return 1;
 }
 
-int init_stool(SceneTree *stool, Shape *cube, Shape *cylinder)
+SceneTree initStool(Shape *cube, Shape *cylinder)
 {
-    if (((*stool) = createNode()) == NULL) { return 0; }
-    memcpy((*stool)->mat, default_mat, 4 * sizeof(float));
-    (*stool)->Md = g3x_Identity();
+    SceneTree stool = createNode();
+    if (stool == NULL) { return NULL; }
 
-    return init_stool_desk(stool, cylinder) && init_stool_legs(stool, &(*stool)->down, cube);
+    if (!initStoolDesk(&stool, cylinder) || !initStoolLegs(&stool, cube))
+    {
+        freeNode(&stool);
+        return NULL;
+    }
+
+    return stool;
 }
 
 

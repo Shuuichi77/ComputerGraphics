@@ -17,19 +17,28 @@ typedef struct _shape_
     G3Xpoint  *vrtx;        /* Tableau des vertex - spécifique d’une forme */
     G3Xvector *norm;        /* Tableau des normales - spécifique d’une forme */
     /* Méthode d’affichage - spécifique d’une forme */
-    void (*draw_points)(struct _shape_ *, G3Xvector scale_factor); /* Mode GL_POINTS */
+    void (*draw_points)(struct _shape_ *, G3Xvector scale_factor, double step); /* Mode GL_POINTS */
     void (*draw_faces )(struct _shape_ *, G3Xvector scale_factor, double step); /* Mode GL_TRIANGLES ou GL_QUADS */
 } Shape, *ShapePtr;
 
-/**
- * Renvoie le minimum entre a et b.
- */
+void freeShape(Shape *shape);
+
 int min(int a, int b);
 
-/**
- * Dessine un side et une normale aux coordonnées fournies.<br/>
- * La normale sert notamment à calculer les réflexions de lumières.
- */
-void NormalVertex3dv(Shape shape, unsigned int index);
+void normalAndVertex3dv(Shape shape, unsigned int index);
+
+int getSWIndex(double step, int i, int j, int max, int offset, int additional_offset);
+
+int getSEIndex(double step, int i, int j, int max1, int max2, int offset, int additional_offset);
+
+int getNWIndex(int i, int j, int offset, int additional_offset);
+
+int getNEIndex(double step, int i, int j, int max, int offset, int additional_offset);
+
+void
+drawTriangleSwSeNw(Shape *shape, double step, int i, int j, int max1, int max2, int offset, int additional_offset);
+
+void
+drawTriangleNwSeNe(Shape *shape, double step, int i, int j, int max1, int max2, int offset, int additional_offset);
 
 #endif
