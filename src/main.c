@@ -12,9 +12,9 @@
 #include "../include/stele.h"
 #include "../include/table.h"
 
-static int    NB_QUAD_STELE = 10; // 10 * 4 = 40 steles (20 per row)
-static int    *random_radius;
-static double g_step        = 1.0;
+static int const NB_QUAD_STELE = 10; // 10 * 4 = 40 steles (20 per row)
+static int       *random_radius;
+static double    g_step        = 1.0;
 
 static int   WWIDTH = 512, WHEIGHT = 512;
 static Shape *cube;
@@ -29,7 +29,6 @@ static Node *stool;
 static Node *spinning_top;
 static Node *stele;
 
-/* la fonction d'initialisation : appelée 1 seule fois, au début */
 static void init(void)
 {
     srand(time(0));
@@ -133,8 +132,9 @@ static void drawStoolOnTable(G3Xhmat mat)
     glPopMatrix();
 }
 
-static void drawDesksStoolsScene(void)
+static void drawTablesStoolsScene(void)
 {
+    glPointSize(3);
     G3Xhmat mat = g3x_Identity();
 
     glPushMatrix();
@@ -217,6 +217,7 @@ static void drawPairSpinningTopOnStele(int n, G3Xhmat mat)
 
 static void drawStelesScene()
 {
+    glPointSize(3);
     G3Xhmat mat = g3x_Identity();
 
     glPushMatrix();
@@ -249,19 +250,6 @@ static void drawStelesScene()
     glPopMatrix();
 }
 
-static void draw(void)
-{
-//    glPointSize(3);
-//    drawDesksStoolsScene();
-//    return;
-
-    // -------------------------------------------------------------------------
-
-    glPointSize(3);
-    drawStelesScene();
-    return;
-}
-
 static void quit(void)
 {
     fprintf(stdout, "Freeing shapes & nodes\n");
@@ -278,12 +266,35 @@ static void quit(void)
     fprintf(stdout, "Done. Good bye !\n");
 }
 
+static void usage()
+{
+    printf("Usage :\n"
+           "./main steles (or ./main)\n"
+           "./main tables\n");
+}
+
 int main(int argc, char **argv)
 {
+    if (argc > 2 ||
+        (argc == 2 && strcmp(argv[1], "tables") && strcmp(argv[1], "steles")))
+    {
+        usage();
+        return 0;
+    }
+
     g3x_InitWindow(*argv, WWIDTH, WHEIGHT);
     g3x_SetInitFunction(init);
     g3x_SetCtrlFunction(ctrl);
-    g3x_SetDrawFunction(draw);
+
+    switch (argc)
+    {
+        case 1:g3x_SetDrawFunction(drawStelesScene);
+            break;
+
+        case 2: g3x_SetDrawFunction(!strcmp(argv[1], "steles") ? drawStelesScene : drawTablesStoolsScene);
+            break;
+    }
+
     g3x_SetExitFunction(quit);
 
     return g3x_MainStart();

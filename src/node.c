@@ -112,8 +112,6 @@ void draw_node(Node *node, G3Xvector pos, G3Xhmat mat)
 
     g3x_Material(node->col, node->mat[0], node->mat[1], node->mat[2], node->mat[3], 0.);
     glPushMatrix();
-
-//    glTranslatef(mat.m[12], mat.m[13], mat.m[14]);
     glMultMatrixd(node->Md.m);
 
     if (node->instance != NULL)
@@ -125,10 +123,6 @@ void draw_node(Node *node, G3Xvector pos, G3Xhmat mat)
         double scale_balanced = (node->scale_factor.x * mat.m[0] +
                                  node->scale_factor.y * mat.m[5] +
                                  node->scale_factor.z * mat.m[10]) / 3.;
-
-        G3Xvector real_scale = (G3Xvector) { node->scale_factor.x * mat.m[0],
-                                             node->scale_factor.y * mat.m[5],
-                                             node->scale_factor.z * mat.m[10] };
 
         double step = 1.; // step smallest value possible
         node->instance->draw_faces(node->instance,
